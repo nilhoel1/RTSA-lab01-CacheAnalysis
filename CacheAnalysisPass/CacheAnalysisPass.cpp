@@ -16,10 +16,16 @@
 //
 // License: MIT
 //=============================================================================
-#include "llvm/IR/LegacyPassManager.h"
+#include "llvm/ADT/MapVector.h"
+#include "llvm/IR/AbstractCallSite.h"
+#include "llvm/IR/DataLayout.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/PassManager.h"
+#include "llvm/Pass.h"
 #include "llvm/Passes/PassBuilder.h"
 #include "llvm/Passes/PassPlugin.h"
 #include "llvm/Support/raw_ostream.h"
+#include <cstdlib>
 
 using namespace llvm;
 
@@ -30,18 +36,135 @@ using namespace llvm;
 // everything in an anonymous namespace.
 namespace {
 
+std::string typeToName(Type::TypeID Id) {
+  switch (Id) {
+  case Type::TypeID::ArrayTyID:
+    return "ArrayTy";
+  case Type::TypeID::BFloatTyID:
+    return "BFloatTy";
+  case Type::TypeID::FloatTyID:
+    return "FloatTy";
+  case Type::TypeID::DoubleTyID:
+    return "DoubleTy";
+  case Type::TypeID::FixedVectorTyID:
+    return "FixedVectorTy";
+  case Type::TypeID::FP128TyID:
+    return "FP128Ty";
+  case Type::TypeID::FunctionTyID:
+    return "FunctionTy";
+  case Type::TypeID::HalfTyID:
+    return "HalfTy";
+  case Type::TypeID::IntegerTyID:
+    return "IntegerTy";
+  case Type::TypeID::LabelTyID:
+    return "LabelTy";
+  case Type::TypeID::MetadataTyID:
+    return "MetadataTy";
+  case Type::TypeID::PointerTyID:
+    return "PointerTy";
+  case Type::TypeID::PPC_FP128TyID:
+    return "PPC_FP128Ty";
+  case Type::TypeID::ScalableVectorTyID:
+    return "ScalableVectorTy";
+  case Type::TypeID::StructTyID:
+    return "StructTy";
+  case Type::TypeID::TokenTyID:
+    return "TokenTy";
+  case Type::TypeID::VoidTyID:
+    return "VoidTy";
+  case Type::TypeID::X86_AMXTyID:
+    return "X86_AMXTy";
+  case Type::TypeID::X86_FP80TyID:
+    return "X86_FP80Ty";
+  case Type::TypeID::X86_MMXTyID:
+    return "X86_MMXTy";
+  }
+  // should not reach here
+  return nullptr;
+}
+
+unsigned int getTypeSize(Type &T) {
+  unsigned int Ret = 0;
+  switch (T.getTypeID()) {
+    case Type::TypeID::ArrayTyID:
+    Ret = 0;
+  case Type::TypeID::BFloatTyID:
+    Ret = 32;
+  case Type::TypeID::FloatTyID:
+    Ret = 32;
+  case Type::TypeID::DoubleTyID:
+    Ret = 64;
+  case Type::TypeID::FixedVectorTyID:
+    Ret = 0; //TODO
+  case Type::TypeID::FP128TyID:
+    Ret = 128;
+  case Type::TypeID::FunctionTyID:
+    Ret = 0; //TODO
+  case Type::TypeID::HalfTyID:
+    Ret = 0; //TODO
+  case Type::TypeID::IntegerTyID:
+    Ret = T.getIntegerBitWidth();
+  case Type::TypeID::LabelTyID:
+    Ret = 0; //TODO
+  case Type::TypeID::MetadataTyID:
+    Ret = 0; //TODO
+  case Type::TypeID::PointerTyID:
+    Ret = 64; //TODO Assume 64bit Architecture get it from target
+  case Type::TypeID::PPC_FP128TyID:
+    Ret = 128;
+  case Type::TypeID::ScalableVectorTyID:
+    Ret = 0; //TODO
+  case Type::TypeID::StructTyID:
+    Ret = 0; //TODO
+  case Type::TypeID::TokenTyID:
+    Ret = 0; //TODO
+  case Type::TypeID::VoidTyID:
+    Ret = 0; //TODO
+  case Type::TypeID::X86_AMXTyID:
+    Ret = 0; //TODO
+  case Type::TypeID::X86_FP80TyID:
+    Ret = 0; //TODO
+  case Type::TypeID::X86_MMXTyID:
+    Ret = 0; //TODO
+  }
+  if (Ret = 0) {
+    errs() << "encountered Unhandeled DataType. aborting!";
+    exit(EXIT_FAILURE);
+  }
+  // should not reach here
+  return Ret;
+}
 // This method implements what the pass does
-void visitor(Function &F) {
-    errs() << "Hello from: "<< F.getName() << "\n";
-    errs() << "  number of arguments: " << F.arg_size() << "\n";
+void function_visitor(Function &F) {
+  errs() << "Hello from: " << F.getName() << "\n";
+  errs() << "  number of arguments: " << F.arg_size() << "\n";
+}
+
+void collect_globals(Module &M) {
+  DataLayout DL = M.getDataLayout();
+  Module::GlobalListType &GlobalsList = M.getGlobalList();
+  for (GlobalVariable &G : GlobalsList) {
+    errs() << "G: " << G.getName() << "\n";
+    errs() << "  EleType: "
+           << typeToName(G.getType()->getElementType()->getTypeID()) << "\n";
+
+    switch (G.getType()->getElementType()->getTypeID()) {
+    case Type::TypeID::IntegerTyID:
+      errs() << "size: " << G.getType()->getElementType()->getIntegerBitWidth()<<"\n";
+    }
+  }
 }
 
 // New PM implementation
 struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
   // Main entry point, takes IR unit to run the pass on (&F) and the
   // corresponding pass manager (to be queried if need be)
-  PreservedAnalyses run(Function &F, FunctionAnalysisManager &) {
-    visitor(F);
+
+  PreservedAnalyses run(Module &M, ModuleAnalysisManager &MAM) {
+    collect_globals(M);
+    for (Function &F : M.getFunctionList()) {
+      // function_visitor(F);
+    }
     return PreservedAnalyses::all();
   }
 };
@@ -55,10 +178,10 @@ llvm::PassPluginLibraryInfo getCacheAnalysisPassPluginInfo() {
   return {LLVM_PLUGIN_API_VERSION, "CacheAnalysisPass", LLVM_VERSION_STRING,
           [](PassBuilder &PB) {
             PB.registerPipelineParsingCallback(
-                [](StringRef Name, FunctionPassManager &FPM,
+                [](StringRef Name, ModulePassManager &MPM,
                    ArrayRef<PassBuilder::PipelineElement>) {
                   if (Name == "lru-misses") {
-                    FPM.addPass(CacheAnalysisPass());
+                    MPM.addPass(CacheAnalysisPass());
                     return true;
                   }
                   return false;
@@ -73,4 +196,3 @@ extern "C" LLVM_ATTRIBUTE_WEAK ::llvm::PassPluginLibraryInfo
 llvmGetPassPluginInfo() {
   return getCacheAnalysisPassPluginInfo();
 }
-

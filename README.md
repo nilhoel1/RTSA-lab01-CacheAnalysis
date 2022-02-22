@@ -2,16 +2,32 @@
 
 In this lab session you will learn how to implement a LRU cache in abstract representation.
 
+## Use the Helper script
 
-Configure:
+Initial Setup:
 
-    $ ./configure.sh
+    $ ./helper.sh all
 
-Build:
+To get a list of what the helper script can do simply type
 
-    $ ./build.sh
+    $ ./helper.sh 
 
 Run:
 
-    $ opt -load-pass-plugin build/libCacheAnalysisPass.so -passes=hello-world test/dijkstra.ll
-    $ opt -load-pass-plugin build/libCacheAnalysisPass.so -passes=hello-world test/hello.ll
+    $ ./helper.sh run dijkstra
+    $ ./helper.sh run hello
+
+## Use the Terminal
+
+Initial Setup:
+
+    $ mkdir build
+    $ cd build
+    $ cmake -DLT_LLVM_INSTALL_DIR=$LLVM_DIR ../CacheAnalysisPass/
+    $ make
+    $ cd ..
+
+Run:
+
+    $ opt -load-pass-plugin build/libCacheAnalysisPass.so -passes=lru-misses test/dijkstra.ll
+    $ opt -load-pass-plugin build/libCacheAnalysisPass.so -passes=lru-misses test/hello.ll
