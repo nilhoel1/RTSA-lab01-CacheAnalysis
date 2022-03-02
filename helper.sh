@@ -18,11 +18,67 @@ compile () {
   cd build
   echo "==== Compiling Project ===="
   make
+  cd ..
   echo "==== Done! ===="
 }
 
 run () {
-    opt -load-pass-plugin build/libCacheAnalysisPass.so -passes=lru-misses test/$1.ll
+  echo "==== Running $1 ===="
+  opt -load-pass-plugin build/libCacheAnalysisPass.so \
+    -passes=lru-misses,mem2reg \
+    test/$1.ll -o /dev/null
+}
+
+run2 () {
+  echo "==== Running $1 ===="
+  opt -load-pass-plugin build/libCacheAnalysisPass.so \
+    -passes='lru-misses(function(scalar-evolution))' \
+    test/$1.ll -o /dev/null
+}
+
+allBenchs=( "adpcm"
+  "bs"
+  "bsort100"
+  "cnt"
+  "compress"
+  "cover"
+  "crc"
+  "dijkstra"
+  "duff"
+  "edn"
+  "expint"
+  "fdct"
+  "fft1"
+  "fibcall"
+  "fir"
+  "hello"
+  "insertsort"
+  "janne_complex"
+  "jfdctint"
+  "lcdnum"
+  "lms"
+  "ludcmp"
+  "matmult"
+  "minver"
+  "ndes"
+  "nsichneu"
+  "ns"
+  "prime"
+  "qsort-exam"
+  "qurt"
+  "recursion"
+  "select"
+  "sqrt"
+  "statemate"
+  "ud"
+  "whet"
+)
+
+runall () {
+  for str in ${allBenchs[@]}; do
+    echo
+    run $str
+  done
 }
 
 case $1 in
@@ -32,30 +88,45 @@ case $1 in
   config)
     config
     ;;
-  compile)
+  c | compile)
     compile
     ;;
-  run)
+  cr)
+    compile
+    if [ $2 ]; then
+      run2 $2
+    else
+      echo "==== Please provide name of the test as second argument! ===="
+    fi
+    ;;
+  r | run)
     if [ $2 ]; then
       run $2
     else
       echo "==== Please provide name of the test as second argument! ===="
     fi
     ;;
-  all)
+  ra | runall)
+    runall
+    ;;
+  a | all)
     clean
     config
     make
     echo "==== Done! ===="
     ;;
   *)
-    echo "Unknown argument: $1"
+    if [ $1 ]; then
+      echo "Unknown argument: $1"
+    fi
     echo "Please provide one of the following arguments:"
-    echo ""
     echo "  clean               Deletes the build folder"
     echo "  config              Creates build folder and configures build System"
-    echo "  compile             Compiles the Project"
-    echo "  all                 Cleans, configures and compiles the project."
-    echo "  run [name]          Run pass on test/[name].ll from the test folder"
+    echo "  c | compile             Compiles the Project"
+    echo "  a | all                 Cleans, configures and compiles the project"
+    echo "  r | run [name]          Run pass on test/[name] from the test folder"
+    echo "  cr [name]               Compile and run pass on test/[name] from the test folder"
+    echo "  ra | runall              Run pass on all tests from the test folder"
+    exit
   ;;
 esac
