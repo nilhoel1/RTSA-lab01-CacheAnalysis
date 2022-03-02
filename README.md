@@ -14,8 +14,7 @@ To get a list of what the helper script can do simply type
 
 Run:
 
-    $ ./helper.sh run dijkstra
-    $ ./helper.sh run hello
+    $ ./helper.sh run crc
 
 ## Use the Terminal
 
@@ -29,5 +28,4 @@ Initial Setup:
 
 Run:
 
-    $ opt -load-pass-plugin build/libCacheAnalysisPass.so -passes=lru-misses test/dijkstra.ll
-    $ opt -load-pass-plugin build/libCacheAnalysisPass.so -passes=lru-misses test/hello.ll
+    $ opt -load-pass-plugin build/libCacheAnalysisPass.so -passes=lru-misses test/crc.ll

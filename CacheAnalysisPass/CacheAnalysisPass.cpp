@@ -28,7 +28,6 @@
 #include "llvm/Support/raw_ostream.h"
 
 #include <cstdlib>
-#include <llvm/Analysis/LoopAnalysisManager.h>
 #include <llvm/Analysis/LoopInfo.h>
 
 using namespace llvm;
@@ -170,7 +169,16 @@ struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
 
     for (Function &F : M.getFunctionList()) {
       function_visitor(F);
-      FAM.getResult<ScalarEvolutionAnalysis>(F).print(outs());
+      ScalarEvolution &ScEv = FAM.getResult<ScalarEvolutionAnalysis>(F);
+      LoopInfo &LI = FAM.getResult<LoopAnalysis>(F);
+      for (auto &L : LI) {
+        L->print(outs());
+        outs() << "MaxBackEdgeTaken: ";
+        ScEv.getConstantMaxBackedgeTakenCount(L)->print(outs());
+        outs() << "\n";
+      }
+      // LI.print(outs());
+      // ScEv.print(outs());
     }
     return PreservedAnalyses::all();
   }

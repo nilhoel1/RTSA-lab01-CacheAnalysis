@@ -29,13 +29,6 @@ run () {
     test/$1.ll -o /dev/null
 }
 
-run2 () {
-  echo "==== Running $1 ===="
-  opt -load-pass-plugin build/libCacheAnalysisPass.so \
-    -passes='lru-misses(function(scalar-evolution))' \
-    test/$1.ll -o /dev/null
-}
-
 allBenchs=( "adpcm"
   "bs"
   "bsort100"
@@ -94,7 +87,7 @@ case $1 in
   cr)
     compile
     if [ $2 ]; then
-      run2 $2
+      run $2
     else
       echo "==== Please provide name of the test as second argument! ===="
     fi
