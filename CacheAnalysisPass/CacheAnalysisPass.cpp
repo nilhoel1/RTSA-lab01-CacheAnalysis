@@ -17,6 +17,7 @@
 // License: MIT
 //=============================================================================
 #include "llvm/ADT/MapVector.h"
+#include "llvm/Analysis/ScalarEvolution.h"
 #include "llvm/IR/AbstractCallSite.h"
 #include "llvm/IR/DataLayout.h"
 #include "llvm/IR/Module.h"
@@ -25,7 +26,10 @@
 #include "llvm/Passes/PassBuilder.h"
 #include "llvm/Passes/PassPlugin.h"
 #include "llvm/Support/raw_ostream.h"
+
 #include <cstdlib>
+#include <llvm/Analysis/LoopAnalysisManager.h>
+#include <llvm/Analysis/LoopInfo.h>
 
 using namespace llvm;
 
@@ -86,7 +90,7 @@ std::string typeToName(Type::TypeID Id) {
 unsigned int getTypeSize(Type &T) {
   unsigned int Ret = 0;
   switch (T.getTypeID()) {
-    case Type::TypeID::ArrayTyID:
+  case Type::TypeID::ArrayTyID:
     Ret = 0;
   case Type::TypeID::BFloatTyID:
     Ret = 32;
@@ -95,75 +99,78 @@ unsigned int getTypeSize(Type &T) {
   case Type::TypeID::DoubleTyID:
     Ret = 64;
   case Type::TypeID::FixedVectorTyID:
-    Ret = 0; //TODO
+    Ret = 0; // TODO
   case Type::TypeID::FP128TyID:
     Ret = 128;
   case Type::TypeID::FunctionTyID:
-    Ret = 0; //TODO
+    Ret = 0; // TODO
   case Type::TypeID::HalfTyID:
-    Ret = 0; //TODO
+    Ret = 0; // TODO
   case Type::TypeID::IntegerTyID:
     Ret = T.getIntegerBitWidth();
   case Type::TypeID::LabelTyID:
-    Ret = 0; //TODO
+    Ret = 0; // TODO
   case Type::TypeID::MetadataTyID:
-    Ret = 0; //TODO
+    Ret = 0; // TODO
   case Type::TypeID::PointerTyID:
-    Ret = 64; //TODO Assume 64bit Architecture get it from target
+    Ret = 64; // Assume 64bit Architecture get it from target
   case Type::TypeID::PPC_FP128TyID:
     Ret = 128;
   case Type::TypeID::ScalableVectorTyID:
-    Ret = 0; //TODO
+    Ret = 0; // TODO
   case Type::TypeID::StructTyID:
-    Ret = 0; //TODO
+    Ret = 0; // TODO
   case Type::TypeID::TokenTyID:
-    Ret = 0; //TODO
+    Ret = 0; // TODO
   case Type::TypeID::VoidTyID:
-    Ret = 0; //TODO
+    Ret = 0; // TODO
   case Type::TypeID::X86_AMXTyID:
-    Ret = 0; //TODO
+    Ret = 0; // TODO
   case Type::TypeID::X86_FP80TyID:
-    Ret = 0; //TODO
+    Ret = 0; // TODO
   case Type::TypeID::X86_MMXTyID:
-    Ret = 0; //TODO
+    Ret = 0; // TODO
   }
-  if (Ret = 0) {
+  if (Ret == 0) {
     errs() << "encountered Unhandeled DataType. aborting!";
     exit(EXIT_FAILURE);
   }
   // should not reach here
   return Ret;
 }
-// This method implements what the pass does
-void function_visitor(Function &F) {
-  errs() << "Hello from: " << F.getName() << "\n";
-  errs() << "  number of arguments: " << F.arg_size() << "\n";
-}
 
 void collect_globals(Module &M) {
   DataLayout DL = M.getDataLayout();
   Module::GlobalListType &GlobalsList = M.getGlobalList();
   for (GlobalVariable &G : GlobalsList) {
-    errs() << "G: " << G.getName() << "\n";
-    errs() << "  EleType: "
+    outs() << "G: " << G.getName() << "\n";
+    outs() << "  EleType: "
            << typeToName(G.getType()->getElementType()->getTypeID()) << "\n";
 
     switch (G.getType()->getElementType()->getTypeID()) {
     case Type::TypeID::IntegerTyID:
-      errs() << "size: " << G.getType()->getElementType()->getIntegerBitWidth()<<"\n";
+      outs() << "size: " << G.getType()->getElementType()->getIntegerBitWidth()
+             << "\n";
     }
   }
 }
 
+// This method implements what the pass does
+void function_visitor(Function &F) {
+  outs() << "Hello from: " << F.getName() << "\n";
+  // outs() << "  number of arguments: " << F.arg_size() << "\n";
+}
+
 // New PM implementation
 struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
-  // Main entry point, takes IR unit to run the pass on (&F) and the
-  // corresponding pass manager (to be queried if need be)
 
   PreservedAnalyses run(Module &M, ModuleAnalysisManager &MAM) {
-    collect_globals(M);
+    FunctionAnalysisManager &FAM =
+        MAM.getResult<FunctionAnalysisManagerModuleProxy>(M).getManager();
+
     for (Function &F : M.getFunctionList()) {
-      // function_visitor(F);
+      function_visitor(F);
+      FAM.getResult<ScalarEvolutionAnalysis>(F).print(outs());
     }
     return PreservedAnalyses::all();
   }
