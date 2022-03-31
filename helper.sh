@@ -25,8 +25,9 @@ compile () {
 run () {
   echo "==== Running $1 ===="
   opt -load-pass-plugin build/libCacheAnalysisPass.so \
-    -passes=lru-misses,mem2reg \
+    -passes='lru-misses(function(loop-unroll-and-jam))' \
     test/$1.ll -o /dev/null
+  #llvm-dis < out.bc > out.ll
 }
 
 allBenchs=( "adpcm"
