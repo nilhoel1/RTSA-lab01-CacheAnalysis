@@ -94,15 +94,15 @@ std::string typeToName(Type::TypeID Id) {
 }
 // New PM implementation
 
-// TODO2: Apply loopbounds to CFG, either from ScEv or default to 100.
-// TODO3: Find longest Path, LPsolve?
-// TODO4: Sum up Cache misses over longest path.
+// TODO: assign Misses to CacheState
+// TODO: Find longest Path, LPsolve?
+// TODO: Sum up Cache misses over longest path.
 struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
 
   // Development Options
   bool printAddresses = false;
   bool printEdges = false;
-  bool printEdgesPost = false;
+  bool printEdgesPost = true;
 
   // Assume a 4kB Cache
   // with 16 Sets, associativity of 4 and Cachelines fitting two
@@ -161,7 +161,6 @@ struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
     return ret;
   }
 
-  // This method implements what the pass does
   void address_collector(Module &M) {
     for (Function &F : M) {
       if (F.getName().equals(EntryPoint)) {
@@ -170,11 +169,6 @@ struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
       }
       unsigned int InstCounter = 0;
       for (BasicBlock &BB : F) {
-        Addr2Value[AddressCounter] = &BB;
-        Value2Addr[&BB] = AddressCounter;
-        AC.addEmptyNode(AddressCounter);
-        AddressCounter += 1;
-        InstCounter++;
         for (Instruction &Inst : BB) {
           AC.addEmptyNode(AddressCounter);
           Addr2Value[AddressCounter] = &Inst;
@@ -200,9 +194,11 @@ struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
     for (BasicBlock &BB : F) {
       // Collect Controll flow in F
       for (auto Pred : predecessors(&BB)) {
-        AC.addEdge(Value2Addr[Pred], Value2Addr[&BB]);
+        AC.addEdge(Value2Addr[&Pred->getInstList().back()],
+                   Value2Addr[&BB.getInstList().front()]);
         if (printEdges)
-          outs() << Value2Addr[Pred] << " -> " << Value2Addr[&BB] << "\n";
+          outs() << Value2Addr[&Pred->getInstList().back()] << " -> "
+                 << Value2Addr[&BB.getInstList().front()] << "\n";
       }
       Instruction *PrevInst = nullptr;
       for (Instruction &Inst : BB) {
@@ -264,34 +260,27 @@ struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
     }
   }
 
+  void collectMisses(Function &F) {}
+
   PreservedAnalyses run(Module &M, ModuleAnalysisManager &MAM) {
     FunctionAnalysisManager &FAM =
         MAM.getResult<FunctionAnalysisManagerModuleProxy>(M).getManager();
 
     address_collector(M);
+    Function *EntryFunction;
     for (Function &F : M.getFunctionList()) {
-
       // Start iterating through CFG from entry point
       if (F.getName().equals(EntryPoint)) {
+        EntryFunction = &F;
         init_edges(F);
       }
-
       if (printAddresses)
         address_printer(F);
-      // ScalarEvolution &ScEv = FAM.getResult<ScalarEvolutionAnalysis>(F);
-      // ScEv.print(outs());
-      // LoopInfo &LI = FAM.getResult<LoopAnalysis>(F);
-      //  for (Loop *L : LI) {
-      //    outs() << "F: " << F.getName() << "\n";
-      //    L->print(outs());
-      //    outs() << "MaxBackEdgeTaken: ";
-      //    ScEv.getConstantMaxBackedgeTakenCount(L)->print(outs());
-      //    outs() << "\n";
-      //  }
     }
     if (printEdgesPost)
       AC.dumpEdges();
     AC.fillAbstractCache();
+    collectMisses(*EntryFunction);
     return PreservedAnalyses::all();
   }
 };
