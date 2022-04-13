@@ -16,19 +16,26 @@
 //
 // License: MIT
 //=============================================================================
-#include "llvm/ADT/MapVector.h"
+#include "llvm/ADT/StringRef.h"
+#include "llvm/Analysis/LoopInfo.h"
 #include "llvm/Analysis/ScalarEvolution.h"
-#include "llvm/IR/AbstractCallSite.h"
-#include "llvm/IR/DataLayout.h"
+#include "llvm/IR/BasicBlock.h"
+#include "llvm/IR/CFG.h"
+#include "llvm/IR/Instruction.h"
 #include "llvm/IR/Module.h"
 #include "llvm/IR/PassManager.h"
+#include "llvm/IR/Value.h"
 #include "llvm/Pass.h"
 #include "llvm/Passes/PassBuilder.h"
 #include "llvm/Passes/PassPlugin.h"
-#include "llvm/Support/raw_ostream.h"
 
+#include <cstddef>
 #include <cstdlib>
-#include <llvm/Analysis/LoopInfo.h>
+#include <llvm/Support/raw_ostream.h>
+#include <utility>
+
+#include "../include/AbstractCache.h"
+#include "../include/CacheType.h"
 
 using namespace llvm;
 
@@ -85,101 +92,206 @@ std::string typeToName(Type::TypeID Id) {
   // should not reach here
   return nullptr;
 }
+// New PM implementation
 
-unsigned int getTypeSize(Type &T) {
-  unsigned int Ret = 0;
-  switch (T.getTypeID()) {
-  case Type::TypeID::ArrayTyID:
-    Ret = 0;
-  case Type::TypeID::BFloatTyID:
-    Ret = 32;
-  case Type::TypeID::FloatTyID:
-    Ret = 32;
-  case Type::TypeID::DoubleTyID:
-    Ret = 64;
-  case Type::TypeID::FixedVectorTyID:
-    Ret = 0; // TODO
-  case Type::TypeID::FP128TyID:
-    Ret = 128;
-  case Type::TypeID::FunctionTyID:
-    Ret = 0; // TODO
-  case Type::TypeID::HalfTyID:
-    Ret = 0; // TODO
-  case Type::TypeID::IntegerTyID:
-    Ret = T.getIntegerBitWidth();
-  case Type::TypeID::LabelTyID:
-    Ret = 0; // TODO
-  case Type::TypeID::MetadataTyID:
-    Ret = 0; // TODO
-  case Type::TypeID::PointerTyID:
-    Ret = 64; // Assume 64bit Architecture get it from target
-  case Type::TypeID::PPC_FP128TyID:
-    Ret = 128;
-  case Type::TypeID::ScalableVectorTyID:
-    Ret = 0; // TODO
-  case Type::TypeID::StructTyID:
-    Ret = 0; // TODO
-  case Type::TypeID::TokenTyID:
-    Ret = 0; // TODO
-  case Type::TypeID::VoidTyID:
-    Ret = 0; // TODO
-  case Type::TypeID::X86_AMXTyID:
-    Ret = 0; // TODO
-  case Type::TypeID::X86_FP80TyID:
-    Ret = 0; // TODO
-  case Type::TypeID::X86_MMXTyID:
-    Ret = 0; // TODO
+// TODO2: Apply loopbounds to CFG, either from ScEv or default to 100.
+// TODO3: Find longest Path, LPsolve?
+// TODO4: Sum up Cache misses over longest path.
+struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
+
+  // Development Options
+  bool printAddresses = false;
+  bool printEdges = false;
+  bool printEdgesPost = false;
+
+  // Assume a 4kB Cache
+  // with 16 Sets, associativity of 4 and Cachelines fitting two
+  CacheType Cache = CacheType(16, 4, 128);
+  StringRef EntryPoint = "main";
+  unsigned int EntryAddress;
+  unsigned int AddressCounter = 0b100000;
+  // assume 8 Bit addressed 64 Bit instructions.
+  std::map<unsigned int, Value *> Addr2Value;
+  std::map<Value *, unsigned int> Value2Addr;
+
+  AbstractCache AC;
+  // TODO mark visit ed F's BB's and Inst's
+  std::map<Function *, bool> VisitedFunctions;
+
+  unsigned int stringRefToInt(StringRef SR) {
+    unsigned int Length = SR.size();
+    unsigned int ret = 0;
+    unsigned int Count = 1;
+    for (char C : SR) {
+      unsigned int Factor = (unsigned int)pow(10, (Length - Count++));
+      switch (C) {
+      case '0':
+        break;
+      case '1':
+        ret += Factor;
+        break;
+      case '2':
+        ret += 2 * Factor;
+        break;
+      case '3':
+        ret += 3 * Factor;
+        break;
+      case '4':
+        ret += 4 * Factor;
+        break;
+      case '5':
+        ret += 5 * Factor;
+        break;
+      case '6':
+        ret += 6 * Factor;
+        break;
+      case '7':
+        ret += 7 * Factor;
+        break;
+      case '8':
+        ret += 8 * Factor;
+        break;
+      case '9':
+        ret += 9 * Factor;
+        break;
+      default:
+        errs() << "StringRef is not a decimal number";
+      };
+    }
+    return ret;
   }
-  if (Ret == 0) {
-    errs() << "encountered Unhandeled DataType. aborting!";
-    exit(EXIT_FAILURE);
-  }
-  // should not reach here
-  return Ret;
-}
 
-void collect_globals(Module &M) {
-  DataLayout DL = M.getDataLayout();
-  Module::GlobalListType &GlobalsList = M.getGlobalList();
-  for (GlobalVariable &G : GlobalsList) {
-    outs() << "G: " << G.getName() << "\n";
-    outs() << "  EleType: "
-           << typeToName(G.getType()->getElementType()->getTypeID()) << "\n";
-
-    switch (G.getType()->getElementType()->getTypeID()) {
-    case Type::TypeID::IntegerTyID:
-      outs() << "size: " << G.getType()->getElementType()->getIntegerBitWidth()
-             << "\n";
+  // This method implements what the pass does
+  void address_collector(Module &M) {
+    for (Function &F : M) {
+      if (F.getName().equals(EntryPoint)) {
+        EntryAddress = AddressCounter;
+        outs() << "Found main at Address: " << EntryAddress << " \n";
+      }
+      unsigned int InstCounter = 0;
+      for (BasicBlock &BB : F) {
+        Addr2Value[AddressCounter] = &BB;
+        Value2Addr[&BB] = AddressCounter;
+        AC.addEmptyNode(AddressCounter);
+        AddressCounter += 1;
+        InstCounter++;
+        for (Instruction &Inst : BB) {
+          AC.addEmptyNode(AddressCounter);
+          Addr2Value[AddressCounter] = &Inst;
+          Value2Addr[&Inst] = AddressCounter;
+          AddressCounter += 1;
+          InstCounter++;
+        }
+      }
     }
   }
-}
 
-// This method implements what the pass does
-void function_visitor(Function &F) {
-  outs() << "Hello from: " << F.getName() << "\n";
-  // outs() << "  number of arguments: " << F.arg_size() << "\n";
-}
+  void address_printer(Function &F) {
+    outs() << "F: " << Value2Addr[&F] << ".\n";
+    for (BasicBlock &BB : F) {
+      outs() << "-BB: " << Value2Addr[&BB] << "\n";
+      for (Instruction &Inst : BB) {
+        outs() << "--InstAddress:" << Value2Addr[&Inst] << "\n";
+      }
+    }
+  }
 
-// New PM implementation
-struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
+  void init_edges(Function &F) {
+    for (BasicBlock &BB : F) {
+      // Collect Controll flow in F
+      for (auto Pred : predecessors(&BB)) {
+        AC.addEdge(Value2Addr[Pred], Value2Addr[&BB]);
+        if (printEdges)
+          outs() << Value2Addr[Pred] << " -> " << Value2Addr[&BB] << "\n";
+      }
+      Instruction *PrevInst = nullptr;
+      for (Instruction &Inst : BB) {
+        // Collect function Calls in F=main
+        if (CallInst *Caller = dyn_cast<CallInst>(&Inst)) {
+          Function *Callee = Caller->getCalledFunction();
+          if (printEdges)
+            outs() << "F: " << Callee->getName() << "\n"
+                   << "Inst: " << Caller->getName() << "\n";
+          if (Callee != NULL) {
+            // Add edge on Function Call
+            AC.addEdge(Value2Addr[&Inst],
+                       Value2Addr[&Callee->getBasicBlockList()
+                                       .front()
+                                       .getInstList()
+                                       .front()]);
+            // Add edge on Function return
+            AC.addEdge(
+                Value2Addr
+                    [&Callee->getBasicBlockList().back().getInstList().back()],
+                Value2Addr[&Inst]);
+
+            if (printEdges) {
+              // Printing edge on Function Call
+              outs() << Callee->getName() << ": ";
+              outs() << Value2Addr[&Inst] << " -> "
+                     << Value2Addr[&Callee->getBasicBlockList()
+                                        .front()
+                                        .getInstList()
+                                        .front()]
+                     << "\n";
+              // Printing edge on Function return
+              outs() << Callee->getName() << ": ";
+              outs() << Value2Addr[&Callee->getBasicBlockList()
+                                        .back()
+                                        .getInstList()
+                                        .back()]
+                     << " -> " << Value2Addr[&Inst] << "\n";
+            }
+
+            // Resume CFG construction in called function
+            if (VisitedFunctions.find(Callee) == VisitedFunctions.end()) {
+              VisitedFunctions[Callee] = true;
+              init_edges(*Callee);
+            }
+            PrevInst = nullptr;
+            if (printEdges)
+              outs() << "Back from " << Callee->getName() << "\n";
+          }
+        }
+        if (PrevInst != nullptr) {
+          AC.addEdge(Value2Addr[PrevInst], Value2Addr[&Inst]);
+          if (printEdges)
+            outs() << Value2Addr[PrevInst] << " -> " << Value2Addr[&Inst]
+                   << "\n";
+        }
+        PrevInst = &Inst;
+      }
+    }
+  }
 
   PreservedAnalyses run(Module &M, ModuleAnalysisManager &MAM) {
     FunctionAnalysisManager &FAM =
         MAM.getResult<FunctionAnalysisManagerModuleProxy>(M).getManager();
 
+    address_collector(M);
     for (Function &F : M.getFunctionList()) {
-      function_visitor(F);
-      ScalarEvolution &ScEv = FAM.getResult<ScalarEvolutionAnalysis>(F);
-      LoopInfo &LI = FAM.getResult<LoopAnalysis>(F);
-      for (auto &L : LI) {
-        L->print(outs());
-        outs() << "MaxBackEdgeTaken: ";
-        ScEv.getConstantMaxBackedgeTakenCount(L)->print(outs());
-        outs() << "\n";
+
+      // Start iterating through CFG from entry point
+      if (F.getName().equals(EntryPoint)) {
+        init_edges(F);
       }
-      // LI.print(outs());
+
+      if (printAddresses)
+        address_printer(F);
+      // ScalarEvolution &ScEv = FAM.getResult<ScalarEvolutionAnalysis>(F);
       // ScEv.print(outs());
+      // LoopInfo &LI = FAM.getResult<LoopAnalysis>(F);
+      //  for (Loop *L : LI) {
+      //    outs() << "F: " << F.getName() << "\n";
+      //    L->print(outs());
+      //    outs() << "MaxBackEdgeTaken: ";
+      //    ScEv.getConstantMaxBackedgeTakenCount(L)->print(outs());
+      //    outs() << "\n";
+      //  }
     }
+    if (printEdgesPost)
+      AC.dumpEdges();
+    AC.fillAbstractCache();
     return PreservedAnalyses::all();
   }
 };
@@ -197,16 +309,16 @@ llvm::PassPluginLibraryInfo getCacheAnalysisPassPluginInfo() {
                    ArrayRef<PassBuilder::PipelineElement>) {
                   if (Name == "lru-misses") {
                     MPM.addPass(CacheAnalysisPass());
-                    return true;
+                    return true; // only looks at CFG
                   }
-                  return false;
+                  return false; // Analysis pass.
                 });
           }};
 }
 
 // This is the core interface for pass plugins. It guarantees that 'opt' will
-// be able to recognize CacheAnalysisPass when added to the pass pipeline on the
-// command line, i.e. via '-passes=lru-misses'
+// be able to recognize CacheAnalysisPass when added to the pass pipeline on
+// the command line, i.e. via '-passes=lru-misses'
 extern "C" LLVM_ATTRIBUTE_WEAK ::llvm::PassPluginLibraryInfo
 llvmGetPassPluginInfo() {
   return getCacheAnalysisPassPluginInfo();

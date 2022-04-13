@@ -10,14 +10,14 @@ config () {
   mkdir build
   cd build
   echo "==== Configuring cmake ===="
-  cmake -DLT_LLVM_INSTALL_DIR=$LLVM_DIR ../CacheAnalysisPass/
+  cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DLT_LLVM_INSTALL_DIR=$LLVM_DIR ../CacheAnalysisPass/
   echo "==== Done! ===="
 }
 
 compile () {
   cd build
   echo "==== Compiling Project ===="
-  make
+  ninja
   cd ..
   echo "==== Done! ===="
 }
@@ -106,7 +106,7 @@ case $1 in
   a | all)
     clean
     config
-    make
+    ninja
     echo "==== Done! ===="
     ;;
   *)
