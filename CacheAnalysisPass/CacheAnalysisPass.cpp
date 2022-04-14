@@ -100,9 +100,11 @@ std::string typeToName(Type::TypeID Id) {
 struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
 
   // Development Options
-  bool printAddresses = false;
-  bool printEdges = false;
-  bool printEdgesPost = true;
+  bool PrintAddresses = false;
+  bool PrintEdges = false;
+  bool PrintEdgesPost = false;
+  bool DumpToDot = false;
+  bool DumpNodes = false;
 
   // Assume a 4kB Cache
   // with 16 Sets, associativity of 4 and Cachelines fitting two
@@ -165,7 +167,8 @@ struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
     for (Function &F : M) {
       if (F.getName().equals(EntryPoint)) {
         EntryAddress = AddressCounter;
-        outs() << "Found main at Address: " << EntryAddress << " \n";
+        if (PrintAddresses)
+          outs() << "Found main at PseudoAddress: " << EntryAddress << " \n";
       }
       unsigned int InstCounter = 0;
       for (BasicBlock &BB : F) {
@@ -196,7 +199,7 @@ struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
       for (auto Pred : predecessors(&BB)) {
         AC.addEdge(Value2Addr[&Pred->getInstList().back()],
                    Value2Addr[&BB.getInstList().front()]);
-        if (printEdges)
+        if (PrintEdges)
           outs() << Value2Addr[&Pred->getInstList().back()] << " -> "
                  << Value2Addr[&BB.getInstList().front()] << "\n";
       }
@@ -205,7 +208,7 @@ struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
         // Collect function Calls in F=main
         if (CallInst *Caller = dyn_cast<CallInst>(&Inst)) {
           Function *Callee = Caller->getCalledFunction();
-          if (printEdges)
+          if (PrintEdges)
             outs() << "F: " << Callee->getName() << "\n"
                    << "Inst: " << Caller->getName() << "\n";
           if (Callee != NULL) {
@@ -221,7 +224,7 @@ struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
                     [&Callee->getBasicBlockList().back().getInstList().back()],
                 Value2Addr[&Inst]);
 
-            if (printEdges) {
+            if (PrintEdges) {
               // Printing edge on Function Call
               outs() << Callee->getName() << ": ";
               outs() << Value2Addr[&Inst] << " -> "
@@ -245,13 +248,13 @@ struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
               init_edges(*Callee);
             }
             PrevInst = nullptr;
-            if (printEdges)
+            if (PrintEdges)
               outs() << "Back from " << Callee->getName() << "\n";
           }
         }
         if (PrevInst != nullptr) {
           AC.addEdge(Value2Addr[PrevInst], Value2Addr[&Inst]);
-          if (printEdges)
+          if (PrintEdges)
             outs() << Value2Addr[PrevInst] << " -> " << Value2Addr[&Inst]
                    << "\n";
         }
@@ -259,8 +262,6 @@ struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
       }
     }
   }
-
-  void collectMisses(Function &F) {}
 
   PreservedAnalyses run(Module &M, ModuleAnalysisManager &MAM) {
     FunctionAnalysisManager &FAM =
@@ -274,13 +275,18 @@ struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
         EntryFunction = &F;
         init_edges(F);
       }
-      if (printAddresses)
+      if (PrintAddresses)
         address_printer(F);
     }
-    if (printEdgesPost)
+    if (PrintEdgesPost)
       AC.dumpEdges();
-    AC.fillAbstractCache();
-    collectMisses(*EntryFunction);
+    if (DumpToDot)
+      AC.dumpDotFile();
+    AC.fillAbstractCache(EntryAddress);
+    if (DumpNodes)
+      AC.dumpNodes();
+    outs() << "MustHits: " << AC.collectHits() << "\n";
+    outs() << "MayMisses: " << AC.collectMisses() << "\n";
     return PreservedAnalyses::all();
   }
 };

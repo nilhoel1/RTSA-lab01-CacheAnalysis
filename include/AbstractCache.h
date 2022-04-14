@@ -4,12 +4,16 @@
 
 #include <cassert>
 #include <cstddef>
+#include <fstream>
+#include <iostream>
+#include <llvm/IR/BasicBlock.h>
 #include <llvm/Support/raw_ostream.h>
 #include <map>
 #include <ostream>
 #include <utility>
 
 #include "AbstractState.h"
+#include "Address.h"
 #include "ConcreteState.h"
 
 // Forward declarations
@@ -27,29 +31,61 @@ public: // everything is public, because IDGAF
 
   AbstractCache() {}
 
-  void addEdge(unsigned int From, unsigned int To) {
-    Edges[From].push_back(To);
+  /**
+   * @brief Add an Edge to the Abstract Cache
+   *
+   * @param Pre Predecessor Address
+   * @param Suc Successor Address
+   */
+  void addEdge(unsigned int Pre, unsigned int Suc) {
+    Edges[Pre].push_back(Suc);
+    Nodes[Pre].Successors.push_back(Suc);
+    Nodes[Suc].Predecessors.push_back(Pre);
   }
 
   void addEmptyNode(unsigned int NodeAddr) {
-    Nodes[NodeAddr] = AbstractState();
+    Nodes[NodeAddr] = AbstractState(NodeAddr);
   }
 
-  void addNode(unsigned int NodeAddr) {
-    Nodes[NodeAddr] = AbstractState(Address(NodeAddr));
-  }
-
-  void fillAbstractCache() {
-    for (auto E : Edges) {
-      unsigned int FromNodeNr = E.first;
-      AbstractState FromNode = Nodes[FromNodeNr];
-      for (unsigned int ToNodeNr : E.second) {
-        AbstractState ToNode = Nodes[ToNodeNr];
-        // TODO Join FromNode into ToNode
-        ToNode.mustJoin(FromNode);
-        ToNode.update(Address(FromNodeNr));
+  void fillAbstractCache(unsigned int NodeNr) {
+    Nodes[NodeNr].computed = true;
+    for (unsigned int SuccNr : Nodes[NodeNr].Successors) {
+      Nodes[SuccNr];
+      if (Nodes[SuccNr].computed) {
+        // Join don't call
+        Nodes[SuccNr].mustJoin(Nodes[NodeNr]);
+        Nodes[SuccNr].mustJoin(AbstractState(NodeNr));
+      } else {
+        // Update and fill Succ
+        Nodes[SuccNr].fill(Nodes[NodeNr], NodeNr);
+        fillAbstractCache(SuccNr);
       }
     }
+    return;
+  }
+
+  unsigned int collectHits() {
+    unsigned int Hits = 0;
+    for (auto const &E : Edges) {
+      auto predecessor = Nodes[E.first];
+      for (unsigned int SuccessorAddr : E.second) {
+        // When successors Address is in predecessor, we have a Hit.
+        Hits += predecessor.isHit(Address(SuccessorAddr)) ? 1 : 0;
+      }
+    }
+    return Hits;
+  }
+
+  unsigned int collectMisses() {
+    unsigned int Misses = 0;
+    for (auto const &E : Edges) {
+      auto predecessor = Nodes[E.first];
+      for (unsigned int SuccessorAddr : E.second) {
+        // When successors Address is in predecessor, we have a Hit.
+        Misses += predecessor.isHit(Address(SuccessorAddr)) ? 0 : 1;
+      }
+    }
+    return Misses;
   }
 
   void dumpEdges() {
@@ -69,5 +105,24 @@ public: // everything is public, because IDGAF
     }
   }
 
+  void dumpDotFile() {
+    std::ofstream DotFile;
+    DotFile.open("out.dot");
+    DotFile << "digraph g {"
+            << "\n";
+    for (auto const &E : Edges) {
+      for (unsigned int To : E.second) {
+        DotFile << E.first << " -> " << To << "\n";
+      }
+    }
+    DotFile << "}\n";
+    DotFile.close();
+  }
+
+  void dumpNodes() {
+    for (auto const &E : Edges) {
+      Nodes[E.first].dump();
+    }
+  }
 };     // namespace
 #endif // ABSTRACHTCACHESTATE_H
