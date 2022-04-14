@@ -108,3 +108,4 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib")
 # available for the sub-projects.
 #===============================================================================
 add_subdirectory(CacheAnalysisPass)  # Use your pass name here.
+add_subdirectory(lib)

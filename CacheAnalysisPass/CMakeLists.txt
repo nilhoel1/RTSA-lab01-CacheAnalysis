@@ -16,7 +16,7 @@ list(APPEND CMAKE_PREFIX_PATH "${LT_LLVM_INSTALL_DIR}/lib/cmake/llvm/")
 find_package(LLVM REQUIRED CONFIG)
 
 # CacheAnalysisPass includes headers from LLVM - update the include paths accordingly
-include_directories(SYSTEM ${LLVM_INCLUDE_DIRS})
+include_directories(SYSTEM ${LLVM_INCLUDE_DIRS}, "${CMAKE_CURRENT_SOURCE_DIR}/../include")
 
 #===============================================================================
 # 2. LLVM-TUTOR BUILD CONFIGURATION
