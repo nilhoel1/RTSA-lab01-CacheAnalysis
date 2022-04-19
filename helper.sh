@@ -162,6 +162,8 @@ case $1 in
     echo "Please provide one of the following arguments:"
     echo "  clean               Deletes the build folder"
     echo "  config              Creates build folder and configures build System"
+    echo "  docker              Build and Run Docker container for development"
+    echo "  eval                Run a subset of tests for evaluation of your implementation"
     echo "  c | compile             Compiles the Project"
     echo "  a | all                 Cleans, configures and compiles the project"
     echo "  r | run [name]          Run pass on test/[name] from the test folder"
