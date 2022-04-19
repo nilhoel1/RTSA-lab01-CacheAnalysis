@@ -103,6 +103,10 @@ case $1 in
   ra | runall)
     runall
     ;;
+  docker)
+    docker build -t rtsalab01cacheanalysis:latest .
+    docker run -i -d -v "$(pwd)"/.:/root:rw --name RTSAlab01 rtsalab01cacheanalysis
+    ;;
   evaluation | eval)
     run "fft1"
     echo "==== Correct fft1 ===="

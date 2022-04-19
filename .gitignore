@@ -3,3 +3,7 @@ build
 *.dot
 *.png
 *.txt
+.gitconfig
+.vscode-server
+.gnupg
+.bash_history

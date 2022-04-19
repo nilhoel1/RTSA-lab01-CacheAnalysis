@@ -4,6 +4,49 @@ In this lab session you will learn how to implement a LRU cache in abstract repr
 The Goal is to implement an LRU must Join in include/AbstractState.h
 The Project can build, tested and Evaluated with the Helper Script.
 
+## Diclaimer
+
+This is the first time we provide this exercise. 
+Should you encounter something you think is a Bug, please let me know, during lab sessions.
+
+Also keep track of the Repository as I may add more features to the script.
+
+## Setup
+
+We recommend using docker and VS Code for setup.
+If this is not your preferred Setup, take a look in the Docker file for the dependencies.
+
+Also we do not support the usage of Windows, Linux is free of charge so get a copy.
+
+### Setting Docker up:
+
+1.) install docker and VS Code on your Distribution.
+
+https://docs.docker.com/get-docker/
+
+https://code.visualstudio.com/
+
+For this setup you cannot use the OSS version of VS code or the version from Snap, as the remote development extensions will not work.
+
+2.) We recommend you install the following extensions in vs code
+
+C/C++, 
+clangd, 
+Docker and 
+Remote Development
+
+3.) Use the helper script to build and run a Container
+
+    $ ./helper.sh docker
+
+This will build a docker image and run a Docker container with the current directory mounted.
+
+4.) Attach VS Code to the container, in the Docker Tab, and start developing
+
+## Debugging
+
+When you are using VS Code you can simply use the Debugging Tab, we prepared a debug script for you.
+
 ## Use the Helper script
 
 ### Initial Setup:
@@ -27,6 +70,8 @@ This will be used to measure correctness of you implementation.
     $ ./helper.sh eval
 
 ## Use the Terminal (Obsolete if script is used)
+
+This section is not needed, fi you are using the script but for the sake of completeness it is provided anyways.
 
 Initial Setup:
 
