@@ -1,10 +1,12 @@
 # RTSA-lab01-CacheAnalysis
 
 In this lab session you will learn how to implement a LRU cache in abstract representation.
+The Goal is to implement an LRU must Join in include/AbstractState.h
+The Project can build, tested and Evaluated with the Helper Script.
 
 ## Use the Helper script
 
-Initial Setup:
+### Initial Setup:
 
     $ ./helper.sh all
 
@@ -12,11 +14,19 @@ To get a list of what the helper script can do simply type
 
     $ ./helper.sh 
 
-Run:
+### Run:
+Run the pass on a single test.
+fft1 is recommended during development.
 
-    $ ./helper.sh run crc
+    $ ./helper.sh run fft1
 
-## Use the Terminal
+### Eval:
+Runs the Pass on a set of tests and also prints the expected results. 
+This will be used to measure correctness of you implementation.
+
+    $ ./helper.sh eval
+
+## Use the Terminal (Obsolete if script is used)
 
 Initial Setup:
 

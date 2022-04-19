@@ -29,6 +29,8 @@ public: // everything is public, because IDGAF
 
   bool computed = false;
 
+  // Only entries below this comment are needed for the exercise.
+
   /**
    * @brief Containing all Abstract Cache Tags.
    *        Key of the list has no Meaning.
@@ -71,7 +73,21 @@ public: // everything is public, because IDGAF
 
   AbstractState(Address Addr) { Sets[Addr.Index].Associativity[0] = {{Addr.Tag}}; }
 
+
+
   /**
+   * @brief Executes an Must LRU Join on the AbstractCacheState
+   *
+   * @param In, AbstractState that gets joined into the State.
+   */
+  void mustJoin(AbstractState In) {
+  /**
+   * The exercise is to Fill this function with an LRU must Join.
+   * For this you need to use Sets. Associativity and Blocks.
+   */
+  }
+
+    /**
    * @brief Checks if Address Addr is in Cache
    *
    * @param Addr Address to check.
@@ -143,67 +159,6 @@ public: // everything is public, because IDGAF
       }
     }
     Sets[PreAddr.Index].Associativity[0].Blocks.push_back(PreAddr.Tag);
-  }
-
-  /**
-   * @brief Executes an Must LRU Join on the AbstractCacheState
-   *
-   * @param In, AbstractState that gets joined into the State.
-   */
-  void mustJoin(AbstractState In) {
-    // I can not assume every element exists(not using static DataTypes).
-    // 2. join all Sets from In, that don't exist here into current State.
-    for (auto Set2 : In.Sets) {
-      unsigned int Index = Set2.first;
-      if (Sets.find(Index) == Sets.end()) {
-        Sets[Index] = Set2.second;
-      }
-    }
-    // 2. Iterator can now be used without missing any Set in In.
-    // this could be way more efficient but again IDGAF
-    for (auto Set1 : Sets) {
-      unsigned int Index = Set1.first;
-      // See if corresponding Set2 exists
-      if (In.Sets.find(Index) == In.Sets.end()) {
-        break;
-      }
-      // AbstractState::Set
-      auto Set2 = In.Sets[Index];
-      // Check every Entry in Set[Index].
-      for (auto E1 : Set1.second.Associativity) {
-        unsigned int Age1 = E1.first;
-        for (auto E2 : Set2.Associativity) {
-          unsigned int Age2 = E2.first;
-          if (E1.second.Blocks.empty())
-            break;
-          for (unsigned int Block1 : E1.second.Blocks) {
-            int NewAge = -1;
-            // Find Block1 in In.
-            if (E2.second.Blocks.empty())
-              break;
-            for (unsigned int Block2 : E2.second.Blocks) {
-              if (E1.second.Blocks == E2.second.Blocks)
-                break;
-              if (Block1 == Block2)
-                llvm::outs() << "NonEmtyJoin!\n";
-              NewAge = (Age1 > Age2) ? Age1 : Age2;
-            }
-            // If current Entry is already older, do nothing
-            if (NewAge != Age1) {
-              // Other wise move or remove Block1
-              if (NewAge >= 0) {
-                Sets[Index].Associativity[NewAge].Blocks.push_back(Block1);
-                E1.second.Blocks.remove(Block1);
-              } else {
-                E1.second.Blocks.remove(Block1);
-              }
-              if (E1.second.Blocks.empty())
-                break;
-            }
-          }
-        }
-      }
-    }
   }
 
   void dump() {
