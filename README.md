@@ -4,7 +4,7 @@ In this lab session you will learn how to implement a LRU cache in abstract repr
 The Goal is to implement an LRU must Join in include/AbstractState.h
 The Project can build, tested and Evaluated with the Helper Script.
 
-## Diclaimer
+## Disclaimer
 
 This is the first time we provide this exercise. 
 Should you encounter something you think is a Bug, please let me know, during lab sessions.
@@ -46,6 +46,16 @@ This will build a docker image and run a Docker container with the current direc
 ## Debugging
 
 When you are using VS Code you can simply use the Debugging Tab, we prepared a debug script for you.
+You can also set the following variables in the CacheAnalysisPass/CacheAnalysisPass.cpp file, for more output:
+
+```cpp
+  // Development Options
+  bool PrintAddresses = false;
+  bool PrintEdges = false;
+  bool PrintEdgesPost = false;
+  bool DumpToDot = false;
+  bool DumpNodes = false;
+```
 
 ## Use the Helper script
 

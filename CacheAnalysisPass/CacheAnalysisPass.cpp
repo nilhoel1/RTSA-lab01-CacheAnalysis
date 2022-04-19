@@ -94,9 +94,6 @@ std::string typeToName(Type::TypeID Id) {
 }
 // New PM implementation
 
-// TODO: assign Misses to CacheState
-// TODO: Find longest Path, LPsolve?
-// TODO: Sum up Cache misses over longest path.
 struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
 
   // Development Options
@@ -117,7 +114,6 @@ struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
   std::map<Value *, unsigned int> Value2Addr;
 
   AbstractCache AC;
-  // TODO mark visit ed F's BB's and Inst's
   std::map<Function *, bool> VisitedFunctions;
 
   unsigned int stringRefToInt(StringRef SR) {
