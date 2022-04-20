@@ -3,6 +3,7 @@
 clean () {
   echo "==== Cleaning build folder ===="
   rm -rf build/
+  rm compile_commands.json
 }
 
 config () {
