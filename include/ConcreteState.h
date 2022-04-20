@@ -1,7 +1,7 @@
 #ifndef CONCRETESTATE_H
 #define CONCRETESTATE_H
 
-//Currently Unused.
+// Currently Unused.
 
 #include <cassert>
 #include <cstddef>
@@ -33,9 +33,7 @@ public: // everything is public, because IDGAF
 
   std::map<unsigned int, Set> Sets;
 
-  ConcreteState(Address Addr) {
-    Sets[Addr.Index].Entries[0]= Addr.Tag;
-  }
+  ConcreteState(Address Addr) { Sets[Addr.Index].Entries[0] = Addr.Tag; }
 
 };     // namespace
 #endif // CONCRETESTATE_H
