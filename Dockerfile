@@ -11,12 +11,7 @@ RUN pacman -Syu --noconfirm \
     clang \
     gdb \
     lldb \
-    python-pip \
     fish \
     zsh
-
-# 2. INSTALL LIT
-RUN pip3 install lit
-
 
 
