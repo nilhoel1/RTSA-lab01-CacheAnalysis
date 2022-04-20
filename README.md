@@ -31,15 +31,23 @@ For this setup you cannot use the OSS version of VS code or the version from Sna
 2.) We recommend you install the following extensions in vs code
 
 clangd,
+Clang-Format,
 CodeLLDB,
 Docker and
 Remote Development
+
+For a general C/C++ setup of VS Code (I consider good) see:
+<https://ahemery.dev/2020/08/24/c-cpp-vscode/>
+
+Most of the setup can be skipped
 
 3.) Use the helper script to build and run a Container
 
     ./helper.sh docker
 
 This will build a docker image and run a Docker container with the current directory mounted.
+
+The Docker container can later be started from the Docker VS Code extension.
 
 4.) Attach VS Code to the container, in the Docker Tab, and start developing
 
