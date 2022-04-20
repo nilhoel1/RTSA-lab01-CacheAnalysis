@@ -154,6 +154,7 @@ case $1 in
   a | all)
     clean
     config
+    cd build
     ninja
     echo "==== Done! ===="
     ;;
