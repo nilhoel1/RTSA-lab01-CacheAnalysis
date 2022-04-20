@@ -10,6 +10,7 @@ RUN pacman -Syu --noconfirm \
     llvm \
     clang \
     gdb \
+    lldb \
     python-pip \
     fish \
     zsh

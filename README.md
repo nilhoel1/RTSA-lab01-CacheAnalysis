@@ -6,7 +6,7 @@ The Project can build, tested and Evaluated with the Helper Script.
 
 ## Disclaimer
 
-This is the first time we provide this exercise. 
+This is the first time we provide this exercise.
 Should you encounter something you think is a Bug, please let me know, during lab sessions.
 
 Also keep track of the Repository as I may add more features to the script.
@@ -18,26 +18,26 @@ If this is not your preferred Setup, take a look in the Docker file for the depe
 
 Also we do not support the usage of Windows, Linux is free of charge so get a copy.
 
-### Setting Docker up:
+### Setting Docker up
 
 1.) install docker and VS Code on your Distribution.
 
-https://docs.docker.com/get-docker/
+<https://docs.docker.com/get-docker/>
 
-https://code.visualstudio.com/
+<https://code.visualstudio.com/>
 
 For this setup you cannot use the OSS version of VS code or the version from Snap, as the remote development extensions will not work.
 
 2.) We recommend you install the following extensions in vs code
 
-C/C++, 
-clangd, 
-Docker and 
+clangd,
+CodeLLDB,
+Docker and
 Remote Development
 
 3.) Use the helper script to build and run a Container
 
-    $ ./helper.sh docker
+    ./helper.sh docker
 
 This will build a docker image and run a Docker container with the current directory mounted.
 
@@ -59,25 +59,27 @@ You can also set the following variables in the CacheAnalysisPass/CacheAnalysisP
 
 ## Use the Helper script
 
-### Initial Setup:
+### Initial Setup
 
-    $ ./helper.sh all
+    ./helper.sh all
 
 To get a list of what the helper script can do simply type
 
-    $ ./helper.sh 
+    ./helper.sh 
 
-### Run:
+### Run
+
 Run the pass on a single test.
 fft1 is recommended during development.
 
-    $ ./helper.sh run fft1
+    ./helper.sh run fft1
 
-### Eval:
-Runs the Pass on a set of tests and also prints the expected results. 
+### Eval
+
+Runs the Pass on a set of tests and also prints the expected results.
 This will be used to measure correctness of you implementation.
 
-    $ ./helper.sh eval
+    ./helper.sh eval
 
 ## Use the Terminal (Obsolete if script is used)
 
@@ -85,12 +87,12 @@ This section is not needed, fi you are using the script but for the sake of comp
 
 Initial Setup:
 
-    $ mkdir build
-    $ cd build
-    $ cmake -DLT_LLVM_INSTALL_DIR=$LLVM_DIR ../CacheAnalysisPass/
-    $ make
-    $ cd ..
+    mkdir build
+    cd build
+    cmake -DLT_LLVM_INSTALL_DIR=$LLVM_DIR ../CacheAnalysisPass/
+    make
+    cd ..
 
 Run:
 
-    $ opt -load-pass-plugin build/libCacheAnalysisPass.so -passes=lru-misses test/crc.ll
+    opt -load-pass-plugin build/libCacheAnalysisPass.so -passes=lru-misses test/crc.ll

@@ -2,8 +2,9 @@ build
 *.out
 *.dot
 *.png
-*.txt
 .gitconfig
 .vscode-server
 .gnupg
 .bash_history
+.cache/
+compile_commands.json

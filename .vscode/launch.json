@@ -5,7 +5,22 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "DBG fft1",
+      "type": "lldb",
+      "request": "launch",
+      "name": "LLDB fft1",
+      "program": "/usr/bin/opt",
+      "args": [
+        "-load-pass-plugin",
+        "${workspaceFolder}/build/libCacheAnalysisPass.so",
+        "-passes=lru-misses",
+        "${workspaceFolder}/test/fft1.ll",
+        "-o",
+        "/dev/null"
+      ],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "gdb fft1",
       "type": "cppdbg",
       "request": "launch",
       "program": "/usr/bin/opt",

@@ -10,7 +10,9 @@ config () {
   mkdir build
   cd build
   echo "==== Configuring cmake ===="
-  cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DLT_LLVM_INSTALL_DIR=$LLVM_DIR ../CacheAnalysisPass/
+  cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DLT_LLVM_INSTALL_DIR=$LLVM_DIR ../CacheAnalysisPass/
+  cd ..
+  mv build/compile_commands.json compile_commands.json
   echo "==== Done! ===="
 }
 
