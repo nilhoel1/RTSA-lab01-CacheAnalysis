@@ -1,24 +1,81 @@
 # RTSA-lab01-CacheAnalysis
 
 In this lab session you will learn how to implement a LRU cache in abstract representation.
-The Goal is to implement an LRU must Join in include/AbstractState.h
-The Project can build, tested and Evaluated with the Helper Script.
+The Goal is to implement an LRU must Join in include/AbstractState.h.
+The Project can be build, tested and Evaluated with the "helper" script.
 
 ## Disclaimer
 
-This is the first time we provide this exercise.
-Should you encounter something you think is a Bug, please let me know, during lab sessions.
+This is the first time we offer this exercise.
+Should you encounter something you think is a Bug, please let me (Nils) know, during lab sessions.
 
-Also keep track of the Repository as I may add more features to the script.
+Keep track of the Repository as I may add more features to the script.
+
+Also I do not support the usage of Windows, Linux is free of charge so get a copy.
+I am more than happy helping you install Linux on your machine.
 
 ## Setup
 
-We recommend using docker and VS Code for setup.
-If this is not your preferred Setup, take a look in the Docker file for the dependencies.
+I recommend using docker and VS Code for setup.
+Also check out the recommended extensions in the Docker section.
+If you prefer to work from Linux or Mac OS X, check the Dockerfile for dependencies.
 
-Also we do not support the usage of Windows, Linux is free of charge so get a copy.
+Also make sure to have a LLVM13 install.
 
-### Setting Docker up
+### Installing LLVM 13 on Mac OS X
+
+On Darwin you can install LLVM 13 with [Homebrew](https://brew.sh/):
+
+```bash
+brew install llvm@13
+```
+
+If you already have an older version of LLVM installed, you can upgrade it to
+LLVM 13 like this:
+
+```bash
+brew upgrade llvm
+```
+
+Once the installation (or upgrade) is complete, all the required header files,
+libraries and tools will be located in `/usr/local/opt/llvm/`.
+
+### Installing LLVM 13 on Ubuntu
+
+On Ubuntu Bionic, you can [install modern
+LLVM](https://blog.kowalczyk.info/article/k/how-to-install-latest-clang-6.0-on-ubuntu-16.04-xenial-wsl.html)
+from the official [repository](http://apt.llvm.org/):
+
+```bash
+wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+sudo apt-add-repository "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-13 main"
+sudo apt-get update
+sudo apt-get install -y llvm-13 llvm-13-dev llvm-13-tools clang-13
+```
+
+This will install all the required header files, libraries and tools in
+`/usr/lib/llvm-13/`.
+
+### Building LLVM 13 From Sources
+
+Building from sources can be slow and tricky to debug. It is not necessary, but
+might be your preferred way of obtaining LLVM 13. The following steps will work
+on Linux and Mac OS X:
+
+```bash
+git clone https://github.com/llvm/llvm-project.git
+cd llvm-project
+git checkout release/13.x
+mkdir build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release -DLLVM_TARGETS_TO_BUILD=host -DLLVM_ENABLE_PROJECTS=clang <llvm-project/root/dir>/llvm/
+cmake --build .
+```
+
+For more details read the [official
+documentation](https://llvm.org/docs/CMake.html).
+
+### Setting up Docker
 
 1.) install docker and VS Code on your Distribution.
 
@@ -28,7 +85,7 @@ Also we do not support the usage of Windows, Linux is free of charge so get a co
 
 For this setup you cannot use the OSS version of VS code or the version from Snap, as the remote development extensions will not work.
 
-2.) We recommend you install the following extensions in vs code
+2.) I recommend you install the following extensions in vs code
 
 clangd,
 Clang-Format,
@@ -43,7 +100,9 @@ Most of the setup can be skipped
 
 3.) Use the helper script to build and run a Container
 
-    ./helper.sh docker
+```bash
+./helper.sh docker
+```
 
 This will build a docker image and run a Docker container with the current directory mounted.
 
@@ -53,7 +112,7 @@ The Docker container can later be started from the Docker VS Code extension.
 
 ## Debugging
 
-When you are using VS Code you can simply use the Debugging Tab, we prepared a debug script for you.
+When you are using VS Code you can simply use the Debugging Tab, I prepared a debug script for you.
 You can also set the following variables in the CacheAnalysisPass/CacheAnalysisPass.cpp file, for more output:
 
 ```cpp
@@ -69,25 +128,33 @@ You can also set the following variables in the CacheAnalysisPass/CacheAnalysisP
 
 ### Initial Setup
 
-    ./helper.sh all
+```bash
+./helper.sh all
+```
 
 To get a list of what the helper script can do simply type
 
-    ./helper.sh 
+```bash
+./helper.sh 
+```
 
 ### Run
 
 Run the pass on a single test.
 fft1 is recommended during development.
 
-    ./helper.sh run fft1
+```bash
+./helper.sh run fft1
+```
 
 ### Eval
 
 Runs the Pass on a set of tests and also prints the expected results.
 This will be used to measure correctness of you implementation.
 
-    ./helper.sh eval
+```bash
+./helper.sh eval
+```
 
 ## Use the Terminal (Obsolete if script is used)
 
@@ -95,12 +162,17 @@ This section is not needed, fi you are using the script but for the sake of comp
 
 Initial Setup:
 
-    mkdir build
-    cd build
-    cmake -DLT_LLVM_INSTALL_DIR=$LLVM_DIR ../CacheAnalysisPass/
-    make
-    cd ..
+```bash
+mkdir build
+cd build
+cmake -DLT_LLVM_INSTALL_DIR=$LLVM_DIR ../CacheAnalysisPass/
+make
+cd ..
+```
 
 Run:
 
-    opt -load-pass-plugin build/libCacheAnalysisPass.so -passes=lru-misses test/crc.ll
+```bash
+opt -load-pass-plugin build/libCacheAnalysisPass.so \
+-passes=lru-misses test/crc.ll
+```

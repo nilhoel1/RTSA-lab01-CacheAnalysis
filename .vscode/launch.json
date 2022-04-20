@@ -21,7 +21,7 @@
     },
     {
       "name": "gdb fft1",
-      "type": "cppdbg",
+      "type": "cppdbg",//Only Usable with C/C++ extension installed from Microsoft.
       "request": "launch",
       "program": "/usr/bin/opt",
       "args": [
