@@ -21,6 +21,11 @@ Also check out the recommended extensions in the Docker section.
 If you prefer to work from Linux or Mac OS X, check the Dockerfile for dependencies.
 
 Also make sure to have a LLVM13 install.
+And export your LLVM13 install to the `$LLVM_DIR` variable, with:
+
+```bash
+export LLVM_DIR=path/to/LLVM13
+```
 
 ### VS Code Setup
 
@@ -93,6 +98,8 @@ cmake --build .
 
 For more details read the [official
 documentation](https://llvm.org/docs/CMake.html).
+
+This will install all the required header files, libraries and tools in `your/llvm/build/path`.
 
 ### Setting up Docker
 
