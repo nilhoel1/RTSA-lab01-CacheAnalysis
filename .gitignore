@@ -1,4 +1,4 @@
-build
+build/
 *.out
 *.dot
 *.png
@@ -8,3 +8,4 @@ build
 .bash_history
 .cache/
 compile_commands.json
+llvm/

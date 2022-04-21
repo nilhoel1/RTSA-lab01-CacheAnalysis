@@ -27,6 +27,26 @@ And export your LLVM13 install to the `$LLVM_DIR` variable, with:
 export LLVM_DIR=path/to/LLVM13
 ```
 
+### Setup on a Pool PC
+
+You will have to use the poolhelber.sh script instead of the normal helper script.
+
+Get and build llvm from source !!This will take a while!!
+
+```bash
+./poolhelper.sh llvm
+```
+
+In case you can not finish building llvm in one Sessionn just abort it and later on run this:
+
+```bash
+./poolhelper.sh continuellvm
+```
+
+Now you have a llvm13 source build.
+
+Remember to use the poolhelper.sh instead of the helper.sh.
+
 ### VS Code Setup
 
 1.) Install VS Code on your Distribution or get it from Microsoft.
