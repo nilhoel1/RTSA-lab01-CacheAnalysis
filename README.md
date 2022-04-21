@@ -22,6 +22,25 @@ If you prefer to work from Linux or Mac OS X, check the Dockerfile for dependenc
 
 Also make sure to have a LLVM13 install.
 
+### VS Code Setup
+
+1.) Install VS Code on your Distribution or get it from Microsoft.
+
+<https://code.visualstudio.com/>
+
+2.) I recommend you install the following extensions in vs code
+
+clangd,
+Clang-Format,
+CodeLLDB,
+Docker and
+Remote Development
+
+For a general C/C++ setup of VS Code (I consider good) see:
+<https://ahemery.dev/2020/08/24/c-cpp-vscode/>
+
+Most parts can be skipped, as they are already integrated in this Repo.
+
 ### Installing LLVM 13 on Mac OS X
 
 On Darwin you can install LLVM 13 with [Homebrew](https://brew.sh/):
