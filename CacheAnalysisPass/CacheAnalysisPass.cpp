@@ -159,7 +159,7 @@ struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
     return ret;
   }
 
-  void address_collector(Module &M) {
+  void addressCollector(Module &M) {
     for (Function &F : M) {
       if (F.getName().equals(EntryPoint)) {
         EntryAddress = AddressCounter;
@@ -179,7 +179,7 @@ struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
     }
   }
 
-  void address_printer(Function &F) {
+  void addressPrinter(Function &F) {
     outs() << "F: " << Value2Addr[&F] << ".\n";
     for (BasicBlock &BB : F) {
       outs() << "-BB: " << Value2Addr[&BB] << "\n";
@@ -189,10 +189,10 @@ struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
     }
   }
 
-  void init_edges(Function &F) {
+  void initEdges(Function &F) {
     for (BasicBlock &BB : F) {
       // Collect Controll flow in F
-      for (auto Pred : predecessors(&BB)) {
+      for (auto *Pred : predecessors(&BB)) {
         AC.addEdge(Value2Addr[&Pred->getInstList().back()],
                    Value2Addr[&BB.getInstList().front()]);
         if (PrintEdges)
@@ -241,7 +241,7 @@ struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
             // Resume CFG construction in called function
             if (VisitedFunctions.find(Callee) == VisitedFunctions.end()) {
               VisitedFunctions[Callee] = true;
-              init_edges(*Callee);
+              initEdges(*Callee);
             }
             PrevInst = nullptr;
             if (PrintEdges)
@@ -263,16 +263,16 @@ struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
     FunctionAnalysisManager &FAM =
         MAM.getResult<FunctionAnalysisManagerModuleProxy>(M).getManager();
 
-    address_collector(M);
+    addressCollector(M);
     Function *EntryFunction;
     for (Function &F : M.getFunctionList()) {
       // Start iterating through CFG from entry point
       if (F.getName().equals(EntryPoint)) {
         EntryFunction = &F;
-        init_edges(F);
+        initEdges(F);
       }
       if (PrintAddresses)
-        address_printer(F);
+        addressPrinter(F);
     }
     if (PrintEdgesPost)
       AC.dumpEdges();
