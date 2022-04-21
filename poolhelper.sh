@@ -99,7 +99,7 @@ case $1 in
     ;;
   continuellvm)
     cd llvm
-    make .j 4
+    make -j 4
     cd ..
     ;;
   clean)
