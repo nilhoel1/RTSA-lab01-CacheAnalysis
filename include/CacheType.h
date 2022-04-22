@@ -15,7 +15,7 @@ class CacheType;
  */
 class CacheType {
 public:
-  bool isPower2(int n) { return n && !(n & (n - 1)); }
+  bool isPower2(int N) { return N && !(N & (N - 1)); }
 
   int Sets;          // n Sets
   int Associativity; // m Associativity

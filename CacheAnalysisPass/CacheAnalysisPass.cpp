@@ -28,10 +28,10 @@
 #include "llvm/Pass.h"
 #include "llvm/Passes/PassBuilder.h"
 #include "llvm/Passes/PassPlugin.h"
+#include "llvm/Support/raw_ostream.h"
 
 #include <cstddef>
 #include <cstdlib>
-#include <llvm/Support/raw_ostream.h>
 #include <utility>
 
 #include "../include/AbstractCache.h"
@@ -118,7 +118,7 @@ struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
 
   unsigned int stringRefToInt(StringRef SR) {
     unsigned int Length = SR.size();
-    unsigned int ret = 0;
+    unsigned int Ret = 0;
     unsigned int Count = 1;
     for (char C : SR) {
       unsigned int Factor = (unsigned int)pow(10, (Length - Count++));
@@ -126,37 +126,37 @@ struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
       case '0':
         break;
       case '1':
-        ret += Factor;
+        Ret += Factor;
         break;
       case '2':
-        ret += 2 * Factor;
+        Ret += 2 * Factor;
         break;
       case '3':
-        ret += 3 * Factor;
+        Ret += 3 * Factor;
         break;
       case '4':
-        ret += 4 * Factor;
+        Ret += 4 * Factor;
         break;
       case '5':
-        ret += 5 * Factor;
+        Ret += 5 * Factor;
         break;
       case '6':
-        ret += 6 * Factor;
+        Ret += 6 * Factor;
         break;
       case '7':
-        ret += 7 * Factor;
+        Ret += 7 * Factor;
         break;
       case '8':
-        ret += 8 * Factor;
+        Ret += 8 * Factor;
         break;
       case '9':
-        ret += 9 * Factor;
+        Ret += 9 * Factor;
         break;
       default:
         errs() << "StringRef is not a decimal number";
       };
     }
-    return ret;
+    return Ret;
   }
 
   void addressCollector(Module &M) {

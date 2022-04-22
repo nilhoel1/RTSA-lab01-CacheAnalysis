@@ -6,11 +6,12 @@
 #include <cstddef>
 #include <fstream>
 #include <iostream>
-#include <llvm/IR/BasicBlock.h>
-#include <llvm/Support/raw_ostream.h>
 #include <map>
 #include <ostream>
 #include <utility>
+
+#include <llvm/IR/BasicBlock.h>
+#include <llvm/Support/raw_ostream.h>
 
 #include "AbstractState.h"
 #include "Address.h"
@@ -48,10 +49,10 @@ public: // everything is public, because IDGAF
   }
 
   void fillAbstractCache(unsigned int NodeNr) {
-    Nodes[NodeNr].computed = true;
+    Nodes[NodeNr].Computed = true;
     for (unsigned int SuccNr : Nodes[NodeNr].Successors) {
       Nodes[SuccNr];
-      if (Nodes[SuccNr].computed) {
+      if (Nodes[SuccNr].Computed) {
         // Join don't call
         Nodes[SuccNr].mustJoin(Nodes[NodeNr]);
         Nodes[SuccNr].mustJoin(AbstractState(NodeNr));
@@ -67,10 +68,10 @@ public: // everything is public, because IDGAF
   unsigned int collectHits() {
     unsigned int Hits = 0;
     for (auto const &E : Edges) {
-      auto predecessor = Nodes[E.first];
+      auto Predecessor = Nodes[E.first];
       for (unsigned int SuccessorAddr : E.second) {
         // When successors Address is in predecessor, we have a Hit.
-        Hits += predecessor.isHit(Address(SuccessorAddr)) ? 1 : 0;
+        Hits += Predecessor.isHit(Address(SuccessorAddr)) ? 1 : 0;
       }
     }
     return Hits;
@@ -79,10 +80,10 @@ public: // everything is public, because IDGAF
   unsigned int collectMisses() {
     unsigned int Misses = 0;
     for (auto const &E : Edges) {
-      auto predecessor = Nodes[E.first];
+      auto Predecessor = Nodes[E.first];
       for (unsigned int SuccessorAddr : E.second) {
         // When successors Address is in predecessor, we have a Hit.
-        Misses += predecessor.isHit(Address(SuccessorAddr)) ? 0 : 1;
+        Misses += Predecessor.isHit(Address(SuccessorAddr)) ? 0 : 1;
       }
     }
     return Misses;

@@ -6,11 +6,12 @@
 #include <cstdlib>
 #include <iostream>
 #include <list>
-#include <llvm/Support/raw_ostream.h>
 #include <map>
 #include <ostream>
 #include <sstream>
 #include <string>
+
+#include <llvm/Support/raw_ostream.h>
 
 #include "Address.h"
 // Forward declarations
@@ -27,7 +28,7 @@ public: // everything is public, because IDGAF
 
   unsigned int Addr;
 
-  bool computed = false;
+  bool Computed = false;
 
   // Only entries below this comment are needed for the exercise.
 
@@ -110,8 +111,8 @@ public: // everything is public, because IDGAF
    * @param Addr , Address
    */
   void update(Address Addr) {
-    for (int i = 3; i > 0; i--) {
-      Sets[Addr.Index].Associativity[i] = Sets[Addr.Index].Associativity[i - 1];
+    for (int I = 3; I > 0; I--) {
+      Sets[Addr.Index].Associativity[I] = Sets[Addr.Index].Associativity[I - 1];
     }
     Sets[Addr.Index].Associativity[0].Blocks = {Addr.Tag};
   }
