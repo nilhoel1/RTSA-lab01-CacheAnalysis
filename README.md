@@ -19,17 +19,19 @@ I am more than happy helping you install Linux on your machine.
 I recommend using docker and VS Code for setup.
 Also check out the recommended extensions in the Docker section.
 If you prefer to work from Linux or Mac OS X, check the Dockerfile for dependencies.
-
-Also make sure to have a LLVM13 install.
-And export your LLVM13 install to the `$LLVM_DIR` variable, with:
-
-```bash
-export LLVM_DIR=path/to/LLVM13
-```
+Some other unrecommended Setups are at the end of this Readme.
 
 ### Setup on a Pool PC
 
-You will have to use the poolhelber.sh script instead of the normal helper script.
+At first get an IRB account from the following link and log in:
+
+<https://irb.cs.tu-dortmund.de/cont/de/account/myacc/reservierung/index.html>
+
+Non Informatics Students: Choose the drop Item "Gast and der Fakultät Informatik"
+
+I am sorry but this Website is only available in German.
+
+You will have to use the poolhelper.sh script instead of the normal helper script.
 
 Get and build llvm from source !!This will take a while!!
 
@@ -37,7 +39,7 @@ Get and build llvm from source !!This will take a while!!
 ./poolhelper.sh llvm
 ```
 
-In case you can not finish building llvm in one Sessionn just abort it and later on run this:
+In case you can not finish building llvm in one Session just abort it and run this at a later point in time:
 
 ```bash
 ./poolhelper.sh continuellvm
@@ -48,6 +50,8 @@ Now you have a llvm13 source build.
 Remember to use the poolhelper.sh instead of the helper.sh.
 
 ### VS Code Setup
+
+This is my personally preferred IDE setup for C/C++ and by no means needed to accomplish this exercise.
 
 1.) Install VS Code on your Distribution or get it from Microsoft.
 
@@ -65,6 +69,121 @@ For a general C/C++ setup of VS Code (I consider good) see:
 <https://ahemery.dev/2020/08/24/c-cpp-vscode/>
 
 Most parts can be skipped, as they are already integrated in this Repo.
+
+3.) You can auto build by hitting Strg+Shift+B from the IDE.
+
+4.) Pressing F5 will start a debug session, make sure to set halting points.
+
+### Setting up Docker
+
+1.) install docker and VS Code on your Distribution.
+
+<https://docs.docker.com/get-docker/>
+
+<https://code.visualstudio.com/>
+
+For this setup you cannot use the OSS version of VS code or the version from Snap, as the remote development extensions will not work.
+
+2.) I recommend you install the following extensions in vs code
+
+clangd,
+Clang-Format,
+CodeLLDB,
+Docker and
+Remote Development
+
+For a general C/C++ setup of VS Code (I consider good) see:
+<https://ahemery.dev/2020/08/24/c-cpp-vscode/>
+
+Most of the setup can be skipped
+
+3.) Use the helper script to build and run a Container
+
+```bash
+./helper.sh docker
+```
+
+This will build a docker image and run a Docker container with the current directory mounted.
+
+The Docker container can later be started from the Docker VS Code extension.
+
+4.) Attach VS Code to the container, in the Docker Tab, and start developing
+
+## Debugging
+
+When you are using VS Code you can simply use the Debugging Tab, I prepared a debug script for you.
+You can also set the following variables in the CacheAnalysisPass/CacheAnalysisPass.cpp file, for more output:
+
+```cpp
+  // Development Options
+  bool PrintAddresses = false;
+  bool PrintEdges = false;
+  bool PrintEdgesPost = false;
+  bool DumpToDot = false;
+  bool DumpNodes = false;
+```
+
+Helpful to understand what the program does but not very so much for the actual exercise.
+
+## Use the Helper script
+
+Again if you work on a Pool PC use poolhelper.sh insted of the helper.sh script.
+
+### Initial Setup
+
+```bash
+./helper.sh all
+```
+
+To get a list of what the helper script can do simply type
+
+```bash
+./helper.sh 
+```
+
+### Run
+
+Run the pass on a single test.
+fft1 is recommended during development.
+
+```bash
+./helper.sh run fft1
+```
+
+### Eval
+
+Runs the Pass on a set of tests and also prints the expected results.
+This will be used to measure correctness of you implementation.
+
+```bash
+./helper.sh eval
+```
+
+## Use the Terminal (Obsolete if script is used)
+
+This section is not needed, fi you are using the script but for the sake of completeness it is provided anyways.
+
+Initial Setup:
+
+```bash
+mkdir build
+cd build
+cmake -DLT_LLVM_INSTALL_DIR=$LLVM_DIR ../CacheAnalysisPass/
+make
+cd ..
+```
+
+Run:
+
+```bash
+opt -load-pass-plugin build/libCacheAnalysisPass.so \
+-passes=lru-misses test/crc.ll
+```
+
+## Alternative Setups
+
+These Setups are alternatives and I do not recommend them.
+These are here in case you want to "play around" with the Code and LLVM.
 
 ### Installing LLVM 13 on Mac OS X
 
@@ -120,105 +239,3 @@ For more details read the [official
 documentation](https://llvm.org/docs/CMake.html).
 
 This will install all the required header files, libraries and tools in `your/llvm/build/path`.
-
-### Setting up Docker
-
-1.) install docker and VS Code on your Distribution.
-
-<https://docs.docker.com/get-docker/>
-
-<https://code.visualstudio.com/>
-
-For this setup you cannot use the OSS version of VS code or the version from Snap, as the remote development extensions will not work.
-
-2.) I recommend you install the following extensions in vs code
-
-clangd,
-Clang-Format,
-CodeLLDB,
-Docker and
-Remote Development
-
-For a general C/C++ setup of VS Code (I consider good) see:
-<https://ahemery.dev/2020/08/24/c-cpp-vscode/>
-
-Most of the setup can be skipped
-
-3.) Use the helper script to build and run a Container
-
-```bash
-./helper.sh docker
-```
-
-This will build a docker image and run a Docker container with the current directory mounted.
-
-The Docker container can later be started from the Docker VS Code extension.
-
-4.) Attach VS Code to the container, in the Docker Tab, and start developing
-
-## Debugging
-
-When you are using VS Code you can simply use the Debugging Tab, I prepared a debug script for you.
-You can also set the following variables in the CacheAnalysisPass/CacheAnalysisPass.cpp file, for more output:
-
-```cpp
-  // Development Options
-  bool PrintAddresses = false;
-  bool PrintEdges = false;
-  bool PrintEdgesPost = false;
-  bool DumpToDot = false;
-  bool DumpNodes = false;
-```
-
-## Use the Helper script
-
-### Initial Setup
-
-```bash
-./helper.sh all
-```
-
-To get a list of what the helper script can do simply type
-
-```bash
-./helper.sh 
-```
-
-### Run
-
-Run the pass on a single test.
-fft1 is recommended during development.
-
-```bash
-./helper.sh run fft1
-```
-
-### Eval
-
-Runs the Pass on a set of tests and also prints the expected results.
-This will be used to measure correctness of you implementation.
-
-```bash
-./helper.sh eval
-```
-
-## Use the Terminal (Obsolete if script is used)
-
-This section is not needed, fi you are using the script but for the sake of completeness it is provided anyways.
-
-Initial Setup:
-
-```bash
-mkdir build
-cd build
-cmake -DLT_LLVM_INSTALL_DIR=$LLVM_DIR ../CacheAnalysisPass/
-make
-cd ..
-```
-
-Run:
-
-```bash
-opt -load-pass-plugin build/libCacheAnalysisPass.so \
--passes=lru-misses test/crc.ll
-```

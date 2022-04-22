@@ -187,6 +187,8 @@ case $1 in
       echo "Unknown argument: $1"
     fi
     echo "Please provide one of the following arguments:"
+    echo "  llvm                Build LLVM from source"
+    echo "  llvmcontinue        Contionue building llvm where you left off last time"
     echo "  clean               Deletes the build folder"
     echo "  config              Creates build folder and configures build System"
     echo "  docker              Build and Run Docker container for development"
