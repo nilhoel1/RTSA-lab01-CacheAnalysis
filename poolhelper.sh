@@ -44,9 +44,20 @@ buildllvm() {
   rm llvm-13.0.1.src.tar.xz
   cmake -DCMAKE_BUILD_TYPE=MinSizeRel -DLLVM_TARGETS_TO_BUILD=host llvm-13.0.1.src/
   make -j 4
-  export LLVM_DIR=$(pwd)
+  export LLVM_DIR=$(pwd) >> ~/.zshrc
+  export LLVM_DIR=$(pwd) >> ~/.bashrc
   cd ..
 }
+
+
+mac() {
+  brew install cmake make wget ninja
+  buildllvm
+  cd llvm
+  export LLVM_DIR=$(pwd) >> ~/.zshrc
+  cd ..
+}
+
 
 allBenchs=( "adpcm"
   "bs"
@@ -189,6 +200,7 @@ case $1 in
     echo "Please provide one of the following arguments:"
     echo "  llvm                Build LLVM from source"
     echo "  llvmcontinue        Contionue building llvm where you left off last time"
+    echo "  mac                 Setup LLVM for mac (needs brew)"
     echo "  clean               Deletes the build folder"
     echo "  config              Creates build folder and configures build System"
     echo "  docker              Build and Run Docker container for development"

@@ -19,6 +19,14 @@ I am more than happy helping you install Linux on your machine.
 I recommend using docker and VS Code for setup.
 Also check out the recommended extensions in the Docker section.
 If you prefer to work from Linux or Mac OS X, check the Dockerfile for dependencies.
+For Mac (tested in M1 Mac mini) you can also use:
+
+```bash
+./poolhelper.sh mac
+```
+
+But you will need brew installed and also have to use the poolhelper script instead of the normal helper script.
+
 Some other unrecommended Setups are at the end of this Readme.
 
 ### Setup on a Pool PC
