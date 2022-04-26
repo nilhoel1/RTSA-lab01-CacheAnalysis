@@ -2,6 +2,8 @@
 
 In this lab session you will learn how to implement a LRU cache in abstract representation.
 The Goal is to implement an LRU must Join in include/AbstractState.h.
+For this we assume a "Set-Associative LRU Cache", with 16 sets an associativity of 4 and a cacheline size of two times instruction size.
+
 The Project can be build, tested and Evaluated with the "helper" script.
 
 ## Disclaimer
