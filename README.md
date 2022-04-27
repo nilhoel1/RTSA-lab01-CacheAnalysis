@@ -16,20 +16,30 @@ Keep track of the Repository as I may add more features to the script.
 Also I do not support the usage of Windows, Linux is free of charge so get a copy.
 I am more than happy helping you install Linux on your machine.
 
-## Setup
+## Setups
+
+The easiest Way is to use the VM Image (pw:rtsa) provided here:
+
+<https://tu-dortmund.sciebo.de/s/JbvtbtEADx92eEG/authenticate>
+
+On this VM you can simply open VS Code from the desktop and start coding.
+
+Following are native setups and some other unrecommended Setups are at the end of this Readme.
+
+Also read the VS Code setup, which might be interesting independent from your chosen Setup.
+
+### Mac Setup
 
 I recommend using docker and VS Code for setup.
 Also check out the recommended extensions in the Docker section.
 If you prefer to work from Linux or Mac OS X, check the Dockerfile for dependencies.
-For Mac (tested in M1 Mac mini) you can also use:
+For Mac (tested on M1 Mac mini) you can also use:
 
 ```bash
 ./poolhelper.sh mac
 ```
 
 But you will need brew installed and also have to use the poolhelper script instead of the normal helper script.
-
-Some other unrecommended Setups are at the end of this Readme.
 
 ### Setup on a Pool PC
 
