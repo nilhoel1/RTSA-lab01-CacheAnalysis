@@ -46,52 +46,6 @@ using namespace llvm;
 // everything in an anonymous namespace.
 namespace {
 
-std::string typeToName(Type::TypeID Id) {
-  switch (Id) {
-  case Type::TypeID::ArrayTyID:
-    return "ArrayTy";
-  case Type::TypeID::BFloatTyID:
-    return "BFloatTy";
-  case Type::TypeID::FloatTyID:
-    return "FloatTy";
-  case Type::TypeID::DoubleTyID:
-    return "DoubleTy";
-  case Type::TypeID::FixedVectorTyID:
-    return "FixedVectorTy";
-  case Type::TypeID::FP128TyID:
-    return "FP128Ty";
-  case Type::TypeID::FunctionTyID:
-    return "FunctionTy";
-  case Type::TypeID::HalfTyID:
-    return "HalfTy";
-  case Type::TypeID::IntegerTyID:
-    return "IntegerTy";
-  case Type::TypeID::LabelTyID:
-    return "LabelTy";
-  case Type::TypeID::MetadataTyID:
-    return "MetadataTy";
-  case Type::TypeID::PointerTyID:
-    return "PointerTy";
-  case Type::TypeID::PPC_FP128TyID:
-    return "PPC_FP128Ty";
-  case Type::TypeID::ScalableVectorTyID:
-    return "ScalableVectorTy";
-  case Type::TypeID::StructTyID:
-    return "StructTy";
-  case Type::TypeID::TokenTyID:
-    return "TokenTy";
-  case Type::TypeID::VoidTyID:
-    return "VoidTy";
-  case Type::TypeID::X86_AMXTyID:
-    return "X86_AMXTy";
-  case Type::TypeID::X86_FP80TyID:
-    return "X86_FP80Ty";
-  case Type::TypeID::X86_MMXTyID:
-    return "X86_MMXTy";
-  }
-  // should not reach here
-  return nullptr;
-}
 // New PM implementation
 
 struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
@@ -100,7 +54,7 @@ struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
   bool PrintAddresses = false;
   bool PrintEdges = false;
   bool PrintEdgesPost = false;
-  bool DumpToDot = false;
+  bool DumpToDot = true;
   bool DumpNodes = false;
 
   // Assume a 4kB Cache
@@ -278,6 +232,7 @@ struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
       AC.dumpEdges();
     if (DumpToDot)
       AC.dumpDotFile();
+    AC.unrollLoops();
     AC.fillAbstractCache(EntryAddress);
     if (DumpNodes)
       AC.dumpNodes();
