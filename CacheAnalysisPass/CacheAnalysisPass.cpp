@@ -54,7 +54,7 @@ struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
   bool PrintAddresses = false;
   bool PrintEdges = false;
   bool PrintEdgesPost = false;
-  bool DumpToDot = true;
+  bool DumpToDot = false;
   bool DumpNodes = false;
   bool LoopUnrolling = true;
 
