@@ -232,6 +232,7 @@ struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
     if(LoopUnrolling)
       AC.unrollLoops();
     AC.fillAbstractCache(EntryAddress);
+    //AC.fillPath(EntryAddress);
     if (DumpNodes)
       AC.dumpNodes();
     if (PrintEdgesPost)
@@ -239,7 +240,7 @@ struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
     if (DumpToDot)
       AC.dumpDotFile();
     outs() << "MustHits: " << AC.collectHits() << "\n";
-    outs() << "MayMisses: " << AC.collectMisses() << "\n";
+    //outs() << "MayMisses: " << AC.collectMisses() << "\n";
     return PreservedAnalyses::all();
   }
 };

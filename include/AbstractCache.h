@@ -47,9 +47,9 @@ public: // everything is public, because IDGAF
 
   /**
    * @brief Add an Edge to the AbstractStateGraph
-   * 
-   * @param Pre 
-   * @param Suc 
+   *
+   * @param Pre
+   * @param Suc
    */
   void removeEdge(unsigned int Pre, unsigned int Suc) {
     Edges[Pre].remove(Suc);
@@ -59,9 +59,9 @@ public: // everything is public, because IDGAF
 
   /**
    * @brief Add an Empty node @NodeAddr
-   * 
-   * @param NodeAddr 
-   * @return unsigned int 
+   *
+   * @param NodeAddr
+   * @return unsigned int
    */
   unsigned int addEmptyNode(unsigned int NodeAddr) {
     int I = Nodes.size();
@@ -71,11 +71,11 @@ public: // everything is public, because IDGAF
 
   /**
    * @brief Returns True if a path From -> To exists.
-   * 
-   * @param From 
-   * @param To 
-   * @return true 
-   * @return false 
+   *
+   * @param From
+   * @param To
+   * @return true
+   * @return false
    */
   bool findPath(unsigned int From, unsigned int To) {
     std::map<unsigned int, bool> Visited;
@@ -97,9 +97,9 @@ public: // everything is public, because IDGAF
 
   /**
    * @brief  Removes all Nested loops from the handed LoopBody
-   * 
-   * @param LoopBodyIn 
-   * @param OrigNodeToUnrolledNode 
+   *
+   * @param LoopBodyIn
+   * @param OrigNodeToUnrolledNode
    */
   void removeNestedLoops(
       std::list<unsigned int> LoopBodyIn,
@@ -338,11 +338,16 @@ public: // everything is public, because IDGAF
     Nodes[NodeNr].Computed = true;
     for (unsigned int SuccNr : Nodes[NodeNr].Successors) {
       Nodes[SuccNr];
+      // first Run
       if (Nodes[SuccNr].Computed) {
         // Join don't call
-        // TODO fix Join
-        Nodes[SuccNr].mustJoin(Nodes[NodeNr]); // maybe fill
-        Nodes[SuccNr].mustJoin(AbstractState(NodeNr));
+        AbstractState Before(Nodes[SuccNr]);
+        Nodes[SuccNr].mustJoin(AbstractState(NodeNr, Address(NodeNr)));
+
+        // Continue Joining until State converges
+        if (!(Before == Nodes[SuccNr])) {
+          fillAbstractCache(NodeNr);
+        }
       } else {
         // Update and fill Succ
         Nodes[SuccNr].fill(Nodes[NodeNr], NodeNr);
@@ -354,8 +359,8 @@ public: // everything is public, because IDGAF
 
   /**
    * @brief Return number of measured Hits
-   * 
-   * @return unsigned int 
+   *
+   * @return unsigned int
    */
   unsigned int collectHits() {
     unsigned int Hits = 0;
@@ -371,8 +376,8 @@ public: // everything is public, because IDGAF
 
   /**
    * @brief Return number of measured Misses
-   * 
-   * @return unsigned int 
+   *
+   * @return unsigned int
    */
   unsigned int collectMisses() {
     unsigned int Misses = 0;
@@ -388,7 +393,7 @@ public: // everything is public, because IDGAF
 
   /**
    * @brief Prints all Edges to Console
-   * 
+   *
    */
   void dumpEdges() {
     llvm::outs() << "Dumping Edges:\n";
@@ -409,7 +414,7 @@ public: // everything is public, because IDGAF
 
   /**
    * @brief Dumps the Graph to a out.dot file
-   * 
+   *
    */
   void dumpDotFile() {
     bool PrintOld = true;
@@ -437,7 +442,7 @@ public: // everything is public, because IDGAF
 
   /**
    * @brief Prints all nodes to Console
-   * 
+   *
    */
   void dumpNodes() {
     for (auto const &E : Edges) {

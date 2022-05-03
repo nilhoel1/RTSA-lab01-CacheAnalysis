@@ -111,38 +111,29 @@ case $1 in
     docker run -i -d -v "$(pwd)"/.:/root:rw --name RTSAlab01 rtsalab01cacheanalysis
     ;;
   evaluation | eval)
-    echo "Currently not available!"
-    echo "But please continue to implement the must join,"
-    echo "to the best of your abilities and check for updates!"
     run "fft1"
     echo "==== Correct fft1 ===="
-    echo "MustHits: 16"
-    echo "MayMisses: 280"
+    echo "MustHits: 21"
     echo
     run "cnt"
     echo "==== Correct cnt ===="
-    echo "MustHits: x"
-    echo "MayMisses: xx"
-    echo
-    run "crc"
-    echo "==== Correct crc ===="
-    echo "MustHits: x"
-    echo "MayMisses: xx"
+    echo "MustHits: 4"
     echo
     run "duff"
     echo "==== Correct duff ===="
-    echo "MustHits: x"
-    echo "MayMisses: xx"
+    echo "MustHits: 3"
     echo
     run "insertsort"
     echo "==== Correct insertsort ===="
-    echo "MustHits: x"
-    echo "MayMisses: xx"
+    echo "MustHits: 2"
     echo
     run "matmult"
     echo "==== Correct matmult ===="
-    echo "MustHits: x"
-    echo "MayMisses: x"
+    echo "MustHits: 9"
+    echo
+    run "crc"
+    echo "==== Correct crc ===="
+    echo "MustHits: 6"
     echo
     ;;
   a | all)

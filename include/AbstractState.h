@@ -1,6 +1,7 @@
 #ifndef ABSSTATE_H
 #define ABSSTATE_H
 
+#include <algorithm>
 #include <cassert>
 #include <cstddef>
 #include <cstdlib>
@@ -71,6 +72,21 @@ public: // everything is public, because IDGAF
     }
   }
 
+  AbstractState(AbstractState const &Copy, Address Update) {
+    Addr = Copy.Addr;
+    Unrolled = Copy.Unrolled;
+    for (auto S : Copy.Sets) {
+      unsigned int SetNr = S.first;
+      for (auto E : S.second.Associativity) {
+        unsigned int Age = E.first;
+        for (auto B : E.second.Blocks) {
+          Sets[SetNr].Associativity[Age].Blocks.push_back(B);
+        }
+      }
+    }
+    this->update(Update);
+  }
+
   AbstractState() {}
 
   AbstractState(unsigned int AddressIn) {
@@ -88,6 +104,30 @@ public: // everything is public, because IDGAF
   // }
 
   void setUnrolled(unsigned int In) { Unrolled = In; }
+
+  bool operator==(AbstractState In) {
+    for (int Index; Index < 16; Index++) {
+      for (int Age; Age < 4; Age++) {
+        for (auto E1 : Sets[Index].Associativity[Age].Blocks) {
+          // find E1 in In States Set and Age.
+          if (std::find(In.Sets[Index].Associativity[Age].Blocks.begin(),
+                        In.Sets[Index].Associativity[Age].Blocks.end(),
+                        E1) == In.Sets[Index].Associativity[Age].Blocks.end()) {
+            return false;
+          }
+        }
+        for (auto E2 : In.Sets[Index].Associativity[Age].Blocks) {
+          // find E2 in This Set and Age.
+          if (std::find(Sets[Index].Associativity[Age].Blocks.begin(),
+                        Sets[Index].Associativity[Age].Blocks.end(),
+                        E2) == Sets[Index].Associativity[Age].Blocks.end()) {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  }
 
   /**
    * @brief Executes an Must LRU Join on the AbstractCacheState
@@ -127,31 +167,32 @@ public: // everything is public, because IDGAF
     // This loopages all entries by one. 3 <-2, 2<-1, 1<-0
     for (int I = 3; I > 0; I--) {
       Sets[Addr.Index].Associativity[I] = Sets[Addr.Index].Associativity[I - 1];
+      Sets[Addr.Index].Associativity[I].Blocks.remove(Addr.Tag);
     }
     // entry at age 0 is updated with current address.
     Sets[Addr.Index].Associativity[0].Blocks = {Addr.Tag};
   }
 
-  /**
-   * @brief Updates the AbstractState with given AbstractState
-   *
-   * @param UpdateState, State that gets merged into State with Age+1.
-   */
-  void update(AbstractState UpdateState) {
-    for (auto S : UpdateState.Sets) {
-      unsigned int Index = S.first;
-      for (auto E : S.second.Associativity) {
-        unsigned int Age = E.first;
-        // If updated age is greater 4 The Tag is no longer in Cache.
-        // Due to associativity of 4 per set.
-        if (Age >= 4)
-          break;
-        for (auto B : E.second.Blocks) {
-          Sets[Index].Associativity[Age].Blocks.push_back(B);
-        }
-      }
-    }
-  }
+  // /**
+  //  * @brief Updates the AbstractState with given AbstractState
+  //  *
+  //  * @param UpdateState, State that gets merged into State with Age+1.
+  //  */
+  // void update(AbstractState UpdateState) {
+  //   for (auto S : UpdateState.Sets) {
+  //     unsigned int Index = S.first;
+  //     for (auto E : S.second.Associativity) {
+  //       unsigned int Age = E.first;
+  //       // If updated age is greater 4 The Tag is no longer in Cache.
+  //       // Due to associativity of 4 per set.
+  //       if (Age >= 4)
+  //         break;
+  //       for (auto B : E.second.Blocks) {
+  //         Sets[Index].Associativity[Age].Blocks.push_back(B);
+  //       }
+  //     }
+  //   }
+  // }
 
   /**
    * @brief Fills the AbstractState PreState and updates with PreAddress.
