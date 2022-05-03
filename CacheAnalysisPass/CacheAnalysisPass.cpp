@@ -56,6 +56,7 @@ struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
   bool PrintEdgesPost = false;
   bool DumpToDot = true;
   bool DumpNodes = false;
+  bool LoopUnrolling = true;
 
   // Assume a 4kB Cache
   // with 16 Sets, associativity of 4 and Cachelines fitting two
@@ -228,14 +229,15 @@ struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
       if (PrintAddresses)
         addressPrinter(F);
     }
+    if(LoopUnrolling)
+      AC.unrollLoops();
+    AC.fillAbstractCache(EntryAddress);
+    if (DumpNodes)
+      AC.dumpNodes();
     if (PrintEdgesPost)
       AC.dumpEdges();
     if (DumpToDot)
       AC.dumpDotFile();
-    AC.unrollLoops();
-    AC.fillAbstractCache(EntryAddress);
-    if (DumpNodes)
-      AC.dumpNodes();
     outs() << "MustHits: " << AC.collectHits() << "\n";
     outs() << "MayMisses: " << AC.collectMisses() << "\n";
     return PreservedAnalyses::all();

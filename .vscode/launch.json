@@ -7,13 +7,13 @@
   {
       "type": "lldb",
       "request": "launch",
-      "name": "LLDB cnt",
+      "name": "LLDB Unrolling",
       "program": "/usr/bin/opt",
       "args": [
         "-load-pass-plugin",
         "${workspaceFolder}/build/libCacheAnalysisPass.so",
         "-passes=lru-misses",
-        "${workspaceFolder}/test/cnt.ll",
+        "${workspaceFolder}/test/fft1.ll",
         "-o",
         "/dev/null"
       ],
