@@ -111,49 +111,30 @@ case $1 in
     docker run -i -d -v "$(pwd)"/.:/root:rw --name RTSAlab01 rtsalab01cacheanalysis
     ;;
   evaluation | eval)
-    echo "Currently not available!"
-    echo "But please continue to implement the must join,"
-    echo "to the best of your abilities and check for updates!"
-    # run "fft1"
-    # echo "==== Correct fft1 ===="
-    # echo "MustHits: 16"
-    # echo "MayMisses: 280"
-    # echo
-    # run "bsort100"
-    # echo "==== Correct bsort100 ===="
-    # echo "MustHits: 1"
-    # echo "MayMisses: 41"
-    # echo
-    # run "lms"
-    # echo "==== Correct lms ===="
-    # echo "MustHits: 5"
-    # echo "MayMisses: 288"
-    # echo
-    # run "minver"
-    # echo "==== Correct minver ===="
-    # echo "MustHits: 6"
-    # echo "MayMisses: 224"
-    # echo
-    # run "qsort-exam"
-    # echo "==== Correct qsort-exam ===="
-    # echo "MustHits: 2"
-    # echo "MayMisses: 152"
-    # echo
-    # run "recursion"
-    # echo "==== Correct recursion ===="
-    # echo "MustHits: 8"
-    # echo "MayMisses: 8"
-    # echo
-    # run "select"
-    # echo "==== Correct select ===="
-    # echo "MustHits: 4"
-    # echo "MayMisses: 108"
-    # echo
-    # run "whet"
-    # echo "==== Correct whet ===="
-    # echo "MustHits: 5"
-    # echo "MayMisses: 265"
-    # echo
+    run "crc"
+    echo "==== Correct crc ===="
+    echo "MustHits: 90"
+    echo
+    run "cnt"
+    echo "==== Correct cnt ===="
+    echo "MustHits: 28"
+    echo
+    run "duff"
+    echo "==== Correct duff ===="
+    echo "MustHits: 78"
+    echo
+    run "fft1"
+    echo "==== Correct fft1 ===="
+    echo "MustHits: 74"
+    echo
+    run "insertsort"
+    echo "==== Correct insertsort ===="
+    echo "MustHits: 61"
+    echo
+    run "matmult"
+    echo "==== Correct matmult ===="
+    echo "MustHits: 34"
+    echo
     ;;
   a | all)
     clean

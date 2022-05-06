@@ -7,5 +7,6 @@ build/
 .gnupg
 .bash_history
 .cache/
+*.solution
 compile_commands.json
 llvm/
