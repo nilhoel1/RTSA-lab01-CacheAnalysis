@@ -231,8 +231,7 @@ struct CacheAnalysisPass : PassInfoMixin<CacheAnalysisPass> {
     }
     if(LoopUnrolling)
       AC.unrollLoops();
-    AC.fillAbstractCache(EntryAddress);
-    //AC.fillPath(EntryAddress);
+    AC.runMustAnalysis(EntryAddress);
     if (DumpNodes)
       AC.dumpNodes();
     if (PrintEdgesPost)

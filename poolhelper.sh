@@ -145,29 +145,29 @@ case $1 in
     docker run -i -d -v "$(pwd)"/.:/root:rw --name RTSAlab01 rtsalab01cacheanalysis
     ;;
   evaluation | eval)
-    run "fft1"
-    echo "==== Correct fft1 ===="
-    echo "MustHits: 21"
+    run "crc"
+    echo "==== Correct crc ===="
+    echo "MustHits: 90"
     echo
     run "cnt"
     echo "==== Correct cnt ===="
-    echo "MustHits: 4"
+    echo "MustHits: 28"
     echo
     run "duff"
     echo "==== Correct duff ===="
-    echo "MustHits: 3"
+    echo "MustHits: 78"
+    echo
+    run "fft1"
+    echo "==== Correct fft1 ===="
+    echo "MustHits: 74"
     echo
     run "insertsort"
     echo "==== Correct insertsort ===="
-    echo "MustHits: 2"
+    echo "MustHits: 61"
     echo
     run "matmult"
     echo "==== Correct matmult ===="
-    echo "MustHits: 9"
-    echo
-    run "crc"
-    echo "==== Correct crc ===="
-    echo "MustHits: 6"
+    echo "MustHits: 34"
     echo
     ;;
   a | all)

@@ -30,7 +30,8 @@ public: // everything is public, because IDGAF
   unsigned int Addr;
   unsigned int Unrolled;
 
-  bool Computed = false;
+  int Computed = 0;
+  bool Filled = false;
 
   // Only entries below this comment are needed for the exercise.
 
@@ -164,6 +165,11 @@ public: // everything is public, because IDGAF
    * @param Addr , Address
    */
   void update(Address Addr) {
+    // If Updated Address is of Age 0 do nothing
+    if (std::find(Sets[Addr.Index].Associativity[0].Blocks.begin(),
+                  Sets[Addr.Index].Associativity[0].Blocks.end(),
+                  Addr.Tag) != Sets[Addr.Index].Associativity[0].Blocks.end())
+      return;
     // This loopages all entries by one. 3 <-2, 2<-1, 1<-0
     for (int I = 3; I > 0; I--) {
       Sets[Addr.Index].Associativity[I] = Sets[Addr.Index].Associativity[I - 1];
@@ -173,27 +179,6 @@ public: // everything is public, because IDGAF
     Sets[Addr.Index].Associativity[0].Blocks = {Addr.Tag};
   }
 
-  // /**
-  //  * @brief Updates the AbstractState with given AbstractState
-  //  *
-  //  * @param UpdateState, State that gets merged into State with Age+1.
-  //  */
-  // void update(AbstractState UpdateState) {
-  //   for (auto S : UpdateState.Sets) {
-  //     unsigned int Index = S.first;
-  //     for (auto E : S.second.Associativity) {
-  //       unsigned int Age = E.first;
-  //       // If updated age is greater 4 The Tag is no longer in Cache.
-  //       // Due to associativity of 4 per set.
-  //       if (Age >= 4)
-  //         break;
-  //       for (auto B : E.second.Blocks) {
-  //         Sets[Index].Associativity[Age].Blocks.push_back(B);
-  //       }
-  //     }
-  //   }
-  // }
-
   /**
    * @brief Fills the AbstractState PreState and updates with PreAddress.
    *
@@ -202,6 +187,7 @@ public: // everything is public, because IDGAF
    * @param PreAddr Address of PreState
    */
   void fill(AbstractState PreState, Address PreAddr) {
+    bool Verbose = false;
     // copy Pre State into this.
     for (auto S : PreState.Sets) {
       unsigned int Index = S.first;
@@ -216,13 +202,24 @@ public: // everything is public, because IDGAF
         }
       }
     }
+    if (Verbose) {
+      llvm::outs() << "Before:\n";
+      this->dump();
+    }
     // update this with PreAddr
     this->update(PreAddr);
+    if (Verbose) {
+      llvm::outs() << "Update Tag: " << PreAddr.Tag << "\n";
+      llvm::outs() << "Update Set: " << PreAddr.Index << "\n";
+      llvm::outs() << "After:\n";
+      this->dump();
+    }
   }
 
   void dump() {
     llvm::outs() << Addr << " {\n";
     llvm::outs() << "Unrolled: " << Unrolled << "\n";
+    llvm::outs() << "Computed: " << Computed << "\n";
     llvm::outs() << "Predecessors: ";
     for (auto PreNr : Predecessors) {
       llvm::outs() << PreNr << " ";

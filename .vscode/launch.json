@@ -13,7 +13,7 @@
         "-load-pass-plugin",
         "${workspaceFolder}/build/libCacheAnalysisPass.so",
         "-passes=lru-misses",
-        "${workspaceFolder}/test/fft1.ll",
+        "${workspaceFolder}/test/cnt.ll",
         "-o",
         "/dev/null"
       ],

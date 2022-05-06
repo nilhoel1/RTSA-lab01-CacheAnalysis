@@ -329,29 +329,35 @@ public: // everything is public, because IDGAF
   }
 
   /**
-   * @brief Idea fill the graph with the node and perform loop unrolling.
+   * @brief Perform must analysis in the Graph
    *
    * @param NodeNr
    */
-  void fillAbstractCache(unsigned int NodeNr) {
-    // if(isLoopHead(NodeNr))
-    Nodes[NodeNr].Computed = true;
-    for (unsigned int SuccNr : Nodes[NodeNr].Successors) {
-      Nodes[SuccNr];
-      // first Run
-      if (Nodes[SuccNr].Computed) {
-        // Join don't call
-        AbstractState Before(Nodes[SuccNr]);
-        Nodes[SuccNr].mustJoin(AbstractState(NodeNr, Address(NodeNr)));
+  void runMustAnalysis(unsigned int NodeNr) {
+    // Join and call until the state converges.
 
-        // Continue Joining until State converges
-        if (!(Before == Nodes[SuccNr])) {
-          fillAbstractCache(NodeNr);
-        }
+    Nodes[NodeNr].Computed++;
+
+    // fill all Successors, if filled Already join.
+    for (unsigned int SuccNr : Nodes[NodeNr].Successors) {
+      if (Nodes[SuccNr].Filled) {
+        // Join Successor with current State and its Address
+        Nodes[SuccNr].mustJoin(
+            AbstractState(Nodes[NodeNr], Address(Nodes[NodeNr].Addr)));
       } else {
-        // Update and fill Succ
-        Nodes[SuccNr].fill(Nodes[NodeNr], NodeNr);
-        fillAbstractCache(SuccNr);
+        // Fill Successor with current State and its Address
+        Nodes[SuccNr].fill(Nodes[NodeNr], Address(Nodes[NodeNr].Addr));
+        // first Fill, so set Filled
+        Nodes[SuccNr].Filled = true;
+      }
+
+      // Continue Filling CFG on Successors.
+      for (unsigned int SuccNr : Nodes[NodeNr].Successors) {
+        // We can use this as we can safely assume a State has at most two successors.
+        // Due to branch instruction in llvmIR
+        if (Nodes[NodeNr].Computed > 2)
+          continue;
+        runMustAnalysis(SuccNr);
       }
     }
     return;
@@ -368,7 +374,7 @@ public: // everything is public, because IDGAF
       auto Predecessor = Nodes[E.first];
       for (unsigned int SuccessorAddr : E.second) {
         // When successors Address is in predecessor, we have a Hit.
-        Hits += Predecessor.isHit(Address(SuccessorAddr)) ? 1 : 0;
+        Hits += Predecessor.isHit(Address(Nodes[SuccessorAddr].Addr)) ? 1 : 0;
       }
     }
     return Hits;
@@ -385,7 +391,7 @@ public: // everything is public, because IDGAF
       auto Predecessor = Nodes[E.first];
       for (unsigned int SuccessorAddr : E.second) {
         // When successors Address is in predecessor, we have a Hit.
-        Misses += Predecessor.isHit(Address(SuccessorAddr)) ? 0 : 1;
+        Misses += Predecessor.isHit(Address(Nodes[SuccessorAddr].Addr)) ? 0 : 1;
       }
     }
     return Misses;
