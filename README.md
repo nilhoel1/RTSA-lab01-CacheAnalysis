@@ -1,10 +1,16 @@
 # RTSA-lab01-CacheAnalysis
 
 In this lab session you will learn how to implement a LRU cache in abstract representation.
-The Goal is to implement an LRU must Join in include/AbstractState.h.
-For this we assume a "Set-Associative LRU Cache", with 16 sets an associativity of 4 and a cacheline size of two times instruction size.
+
+## Exercise
+Implement a LRU Must-Join as described in the lecture, WCET - Cache Analysis.
+A 16 SetCache with an associativity of 4 Assumed, and cache lines can hold two memory words -> CacheSize 1024kB.
+In order to do so, complete the function "mustJoin" inside [include/AbstractState.h:138](https://git.cs.tu-dortmund.de/nils.hoelscher/RTSA-lab01-CacheAnalysis/src/branch/master/include/AbstractState.h#L138).
+The goal is to join the inbound state into the "this" state.
+
 
 The Project can be build, tested and Evaluated with the "helper" script.
+The Setup and some nice to knows are described in the following sections.
 
 ## Disclaimer
 

@@ -92,7 +92,7 @@ public: // everything is public, because IDGAF
       }
       Visited[Visitor.first] = true;
     }
-    return false;
+    return Ret;
   }
 
   /**
@@ -104,8 +104,6 @@ public: // everything is public, because IDGAF
   void removeNestedLoops(
       std::list<unsigned int> LoopBodyIn,
       std::map<unsigned int, unsigned int> OrigNodeToUnrolledNode) {
-    unsigned int LoopHead = LoopBodyIn.front();
-    unsigned int LoopTail = LoopBodyIn.back();
     unsigned int NestLoopTail;
     for (unsigned int NodeNr : LoopBodyIn) {
       bool IsLoopHead = false;
