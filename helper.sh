@@ -27,7 +27,7 @@ compile () {
 
 run () {
   echo "==== Running $1 ===="
-  opt -load-pass-plugin build/libCacheAnalysisPass.so \
+  opt -load-pass-plugin build/lib/libCacheAnalysisPass.so \
     -passes='lru-misses(function(loop-unroll-and-jam))' \
     test/$1.ll -o /dev/null
   #llvm-dis < out.bc > out.ll
