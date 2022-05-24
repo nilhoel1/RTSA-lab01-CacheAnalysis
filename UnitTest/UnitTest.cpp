@@ -10,7 +10,7 @@ void fillSet(AbstractState &In, unsigned int Set) {
 }
 
 // Joined Set should remain the same
-TEST(UnitTest, MustJoinSameStates) {
+TEST(MustJoinTests, MustJoinSameStates) {
   AbstractCache AC;
   AC.addEmptyNode(0);
   fillSet(AC.Nodes[0], 0);
@@ -37,7 +37,7 @@ void counterFillSet(AbstractState &In, unsigned int Set) {
 //   Age[1]: 1
 //   Age[2]: 2
 //   Age[3]: 0 3
-TEST(UnitTest, MustJoinDifferentStates) {
+TEST(MustJoinTests, MustJoinDifferentStates) {
   AbstractCache AC;
   AC.addEmptyNode(0);
   counterFillSet(AC.Nodes[0], 0);
@@ -81,7 +81,7 @@ void fillSetHighNumbers(AbstractState &In, unsigned int Set) {
 }
 
 // resulting state should be empty
-TEST(UnitTest, MustJoinDisjunctStates) {
+TEST(MustJoinTests, MustJoinDisjunctStates) {
   AbstractCache AC;
   AC.addEmptyNode(0);
   fillSetHighNumbers(AC.Nodes[0], 0);
@@ -100,7 +100,7 @@ TEST(UnitTest, MustJoinDisjunctStates) {
   }
 }
 
-TEST(UnitTest, MustJoinDisjunctStatesAllSets) {
+TEST(MustJoinTests, MustJoinDisjunctStatesAllSets) {
   AbstractCache AC;
   AC.addEmptyNode(0);
   AC.addEmptyNode(1);
@@ -123,7 +123,7 @@ TEST(UnitTest, MustJoinDisjunctStatesAllSets) {
   }
 }
 
-TEST(UnitTest, MustJoinDifferentStatesAllSets) {
+TEST(MustJoinTests, MustJoinDifferentStatesAllSets) {
   AbstractCache AC;
   AC.addEmptyNode(0);
   AC.addEmptyNode(1);
