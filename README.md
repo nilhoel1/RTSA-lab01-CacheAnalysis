@@ -1,5 +1,7 @@
 # RTSA-lab01-CacheAnalysis
 
+[![Build Status](http://129.217.34.203/api/badges/nils.hoelscher/RTSA-lab01-CacheAnalysis/status.svg)](http://129.217.34.203/nils.hoelscher/RTSA-lab01-CacheAnalysis)
+
 In this lab session you will learn how to implement a LRU cache in abstract representation.
 
 ## Exercise
