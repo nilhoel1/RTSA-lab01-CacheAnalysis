@@ -42,7 +42,7 @@ buildllvm() {
   wget https://github.com/llvm/llvm-project/releases/download/llvmorg-13.0.1/llvm-13.0.1.src.tar.xz
   tar -xf llvm-13.0.1.src.tar.xz
   rm llvm-13.0.1.src.tar.xz
-  cmake -DCMAKE_BUILD_TYPE=MinSizeRel -DLLVM_TARGETS_TO_BUILD=host llvm-13.0.1.src/
+  cmake -DCMAKE_BUILD_TYPE=MinSizeRel -DLLVM_INCLUDE_TESTS=FALSE -DLLVM_TARGETS_TO_BUILD=host llvm-13.0.1.src/
   make -j 4
   export LLVM_DIR=$(pwd) >> ~/.zshrc
   export LLVM_DIR=$(pwd) >> ~/.bashrc
