@@ -36,6 +36,10 @@ run () {
   #llvm-dis < out.bc > out.ll
 }
 
+test () {
+  ./build/bin/UnitTest --gtest_brief=1
+}
+
 buildllvm() {
   mkdir llvm
   cd llvm
@@ -137,6 +141,9 @@ case $1 in
       echo "==== Please provide name of the test as second argument! ===="
     fi
     ;;
+  t | test)
+    test
+    ;;
   ra | runall)
     runall
     ;;
@@ -194,6 +201,7 @@ case $1 in
     echo "  r | run [name]          Run pass on test/[name] from the test folder"
     echo "  cr [name]               Compile and run pass on test/[name] from the test folder"
     echo "  ra | runall              Run pass on all tests from the test folder"
+    echo "  t | test                 Execute Unit tests, only test that Fail are printed."
     exit
   ;;
 esac
