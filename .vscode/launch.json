@@ -26,7 +26,7 @@
       "program": "/usr/bin/opt",
       "args": [
         "-load-pass-plugin",
-        "${workspaceFolder}/build/libCacheAnalysisPass.so",
+        "${workspaceFolder}/build/lib/libCacheAnalysisPass.so",
         "-passes=lru-misses",
         "${workspaceFolder}/test/fft1.ll",
         "-o",
@@ -41,7 +41,7 @@
       "program": "/usr/bin/opt",
       "args": [
         "-load-pass-plugin",
-        "${fileDirname}/../build/libCacheAnalysisPass.so",
+        "${fileDirname}/../build/lib/libCacheAnalysisPass.so",
         "-passes='lru-misses'",
         "${fileDirname}/../test/fft1.ll",
         "-o",
