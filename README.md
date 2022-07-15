@@ -26,17 +26,74 @@ I am more than happy helping you install Linux on your machine.
 
 ## Setups
 
-The easiest Way is to use the VM Image (pw:rtsa) provided here:
+### VS Code Docker dev container (recommended setup)
 
-<https://tu-dortmund.sciebo.de/s/JbvtbtEADx92eEG/authenticate>
+1.) install docker and VS Code on your Distribution. Please keep in mind Dev containers are only supported by the native version of VS Code from Microsoft!
 
-On this VM you can simply open VS Code from the desktop and start coding.
+<https://docs.docker.com/get-docker/>
 
-Following are native setups and some other unrecommended Setups are at the end of this Readme.
+<https://code.visualstudio.com/>
 
-Also read the VS Code setup, which might be interesting independent from your chosen Setup.
+For this setup you cannot use the OSS version of VS code or the version from Snap, as the remote development extensions will not work.
 
-### Mac Setup
+2.) I recommend you install the following extensions in vs code
+
+clangd,
+Clang-Format,
+CodeLLDB,
+Docker and
+Remote Development (Microsoft VS Code only!)
+
+For a general C/C++ setup of VS Code (I consider good) see:
+<https://ahemery.dev/2020/08/24/c-cpp-vscode/>
+
+3.) The project comes with a pre configured dev container and should prompt you to use it after opening the project. With this you have a running setup. If not please continue reading the manual points.
+
+3.manual.) Use the helper script to build and run a Container.
+
+```bash
+./helper.sh docker
+```
+
+This will build a docker image and run a Docker container with the current directory mounted.
+
+The Docker container can later be started from the Docker VS Code extension.
+
+4.manual) Attach VS Code to the container, in the Docker Tab, and start developing
+
+### VS Code native setup
+
+This is my personally preferred IDE setup for C/C++ and by no means needed to accomplish this exercise.
+
+1.) Install VS Code on your Distribution or get it from Microsoft.
+
+<https://code.visualstudio.com/>
+
+2.) I recommend you install the following extensions in vs code
+
+clangd,
+Clang-Format,
+CodeLLDB,
+C++ TestMate,
+Docker and
+Remote Development (Microsoft VS Code only!)
+
+For a general C/C++ setup of VS Code (I consider good) see:
+<https://ahemery.dev/2020/08/24/c-cpp-vscode/>
+
+Most parts can be skipped, as they are already integrated in this Repo.
+
+3.a.) Set the LLVM_DIR variable to your LLVM(14) installation.
+
+```bash
+export LLVM_DIR=<path/to/your/llvm/installation>
+```
+
+3.b.) You can auto config and build by hitting Ctr+Shift+B from the IDE or use the helper script.
+
+4.) Pressing F5 will start a debug session, make sure to set halting points.
+
+### Mac setup
 
 I recommend using docker and VS Code for setup.
 Also check out the recommended extensions in the Docker section.
@@ -49,7 +106,7 @@ For Mac (tested on M1 Mac mini) you can also use:
 
 But you will need brew installed and also have to use the poolhelper script instead of the normal helper script.
 
-### Setup on a Pool PC
+### Setup on a pool PC
 
 At first get an IRB account from the following link and log in:
 
@@ -77,66 +134,7 @@ Now you have a llvm13 source build.
 
 Remember to use the poolhelper.sh instead of the helper.sh.
 
-### VS Code Setup
 
-This is my personally preferred IDE setup for C/C++ and by no means needed to accomplish this exercise.
-
-1.) Install VS Code on your Distribution or get it from Microsoft.
-
-<https://code.visualstudio.com/>
-
-2.) I recommend you install the following extensions in vs code
-
-clangd,
-Clang-Format,
-CodeLLDB,
-C++ TestMate,
-Docker and
-Remote Development
-
-For a general C/C++ setup of VS Code (I consider good) see:
-<https://ahemery.dev/2020/08/24/c-cpp-vscode/>
-
-Most parts can be skipped, as they are already integrated in this Repo.
-
-3.) You can auto build by hitting Strg+Shift+B from the IDE.
-
-4.) Pressing F5 will start a debug session, make sure to set halting points.
-
-### Setting up Docker
-
-1.) install docker and VS Code on your Distribution.
-
-<https://docs.docker.com/get-docker/>
-
-<https://code.visualstudio.com/>
-
-For this setup you cannot use the OSS version of VS code or the version from Snap, as the remote development extensions will not work.
-
-2.) I recommend you install the following extensions in vs code
-
-clangd,
-Clang-Format,
-CodeLLDB,
-Docker and
-Remote Development
-
-For a general C/C++ setup of VS Code (I consider good) see:
-<https://ahemery.dev/2020/08/24/c-cpp-vscode/>
-
-Most of the setup can be skipped
-
-3.) Use the helper script to build and run a Container
-
-```bash
-./helper.sh docker
-```
-
-This will build a docker image and run a Docker container with the current directory mounted.
-
-The Docker container can later be started from the Docker VS Code extension.
-
-4.) Attach VS Code to the container, in the Docker Tab, and start developing
 
 ## Debugging
 
@@ -160,11 +158,18 @@ The best way to see what your function does is to use the [UnitTest.cpp](https:/
 With "C++ TestMate" install you can simply run or debug the test from the side panel in VS Code (Flask Icon).
 The "C++ TestMate" is not installed in the VM as I just added this feature now.
 Please feel free to add more test cases to your liking in [UnitTest.cpp](https://git.cs.tu-dortmund.de/nils.hoelscher/RTSA-lab01-CacheAnalysis/src/branch/master/UnitTest/UnitTest.cpp).
-## Use the Helper script
+
+ 
+## Configuring and building 
+
+The easiest way is to use the VS Code tasks in this project.
+By using CTR+Shift+B you can config and then build the project.
+
+### Use the helper script
 
 Again if you work on a Pool PC use poolhelper.sh insted of the helper.sh script.
 
-### Initial Setup
+### Initial setup
 
 ```bash
 ./helper.sh all
