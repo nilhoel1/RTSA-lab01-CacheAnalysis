@@ -12,7 +12,10 @@
 		"matepek.vscode-catch2-test-adapter",
 		"twxs.cmake",
 		"vadimcn.vscode-lldb",
-		"xaver.clang-format"
+		"xaver.clang-format",
+		"yzhang.markdown-all-in-one",
+		"shd101wyy.markdown-preview-enhanced",
+		"streetsidesoftware.code-spell-checker"
 		],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
